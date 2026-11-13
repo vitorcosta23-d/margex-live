@@ -9,5 +9,12 @@
 !app.js
 !build.cjs
 !vercel.json
-!assets/
-!assets/**
+!assets
+!assets/*.png
+!assets/*.jpg
+!assets/*.jpeg
+!assets/*.webp
+!assets/*.svg
+!assets/*.ttf
+!assets/*.woff
+!assets/*.woff2
