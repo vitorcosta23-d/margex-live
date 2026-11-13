@@ -1,0 +1,13 @@
+*
+!index.html
+!formulario.html
+!styles.css
+!config.js
+!form.js
+!pricing.js
+!catalog.js
+!app.js
+!build.cjs
+!vercel.json
+!assets/
+!assets/**
