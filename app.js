@@ -51,6 +51,8 @@
   targets.filter(element => element.matches('.hero-portrait,.teacher-photo > img')).forEach(image => { image.dataset.motionKind='photo'; });
 
   const animations = new Map();
+  const photoWaits = new Map();
+  const readyPhotos = new WeakSet();
   const sceneAnimations = new Map();
   const easing = 'cubic-bezier(.22,1,.36,1)';
   let observer = null;
@@ -60,6 +62,8 @@
 
   function finishMotion(element) {
     observer?.unobserve(element);
+    photoWaits.get(element)?.cancel();
+    photoWaits.delete(element);
     (animations.get(element) || []).forEach(animation => animation.cancel());
     animations.delete(element);
     element.dataset.motionState = 'done';
@@ -70,10 +74,49 @@
     sceneAnimations.delete(scene);
     scene.dataset.sceneState = 'done';
   }
+  function waitForPhoto(image,index) {
+    image.dataset.motionState='waiting';
+    const token={cancel:null};
+    photoWaits.set(image,token);
+    const ready=new Promise(resolve => {
+      let settled=false;
+      function cleanup() {
+        image.removeEventListener('load',loaded);
+        image.removeEventListener('error',failed);
+      }
+      function settle(success) {
+        if (settled) return;
+        settled=true; cleanup(); resolve(success);
+      }
+      function loaded() { settle(image.naturalWidth>0); }
+      function failed() { settle(false); }
+      token.cancel=() => settle(false);
+      image.addEventListener('load',loaded,{once:true});
+      image.addEventListener('error',failed,{once:true});
+      if (typeof image.decode==='function') {
+        image.decode().then(() => settle(image.naturalWidth>0)).catch(() => {
+          if (image.complete) settle(image.naturalWidth>0);
+        });
+      } else if (image.complete) settle(image.naturalWidth>0);
+    });
+    ready.then(success => {
+      // Focus, hashes and reduced motion invalidate this wait immediately.
+      if (photoWaits.get(image)!==token || image.dataset.motionState!=='waiting') return;
+      photoWaits.delete(image);
+      if (!success || reduced.matches) { finishMotion(image); return; }
+      readyPhotos.add(image);
+      image.dataset.motionState='pending';
+      const rect=image.getBoundingClientRect();
+      if (rect.bottom>0 && rect.top<window.innerHeight && rect.width>0) enterMotion(image,index);
+      else if (observer) observer.observe(image);
+      else finishMotion(image);
+    });
+  }
   function enterMotion(element, index) {
     if (element.dataset.motionState !== 'pending') return;
     observer?.unobserve(element);
     if (reduced.matches || typeof element.animate !== 'function' || element.contains(document.activeElement)) { finishMotion(element); return; }
+    if (element.dataset.motionKind==='photo' && !readyPhotos.has(element)) { waitForPhoto(element,index); return; }
     const mobile = window.matchMedia('(max-width: 899px)').matches;
     try {
       element.dataset.motionState = 'running';
