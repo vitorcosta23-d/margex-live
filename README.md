@@ -20,7 +20,7 @@ O servidor atende apenas em 127.0.0.1:4318. PORT permite outra porta.
 
 - index.html: página, catálogo com fotos reais, autoridade do professor e formulário.
 - styles.css: identidade da marca, capítulos e demonstração responsiva consolidada.
-- app.js: entradas, tabs explicativas e FAQ.
+- app.js: entradas, ilustrações ligadas à rolagem nativa e FAQ.
 - pricing.js: dataset em centavos e funções puras, disponíveis no navegador ou por require no Node.
 - catalog.js: progresso por rolagem, preço, condições, margem e trajetória dos cards.
 - form.js: componente compartilhado pelo modal e pela página direta.
@@ -29,7 +29,23 @@ O servidor atende apenas em 127.0.0.1:4318. PORT permite outra porta.
 - build.cjs e vercel.json: preparação da publicação, sob responsabilidade do fluxo DevOps.
 - PENDENCIAS.md: conteúdo, materiais e integrações ainda em aberto.
 
-## Demonstração atual — revisão 1.5
+## Entradas atuais — revisão2.1
+
+Títulos principais aparecem por palavras com sequência curta; os nós de texto são envolvidos emspans sem alterarEM/BR/espaços, conteúdo ou leitura semântica. Fotografias têm entrada própria de560ms com deslocamento e escala mínima, semfiltros/blur. Alvos de seção foram separados para evitar animação dupla de pai/filho. CTA continua imediato.
+
+Baseline legível semJS/observer e cancelamento inicial/runtime em movimento reduzido. Foco/âncoras finalizam a sequência. Exemplos conservam a camada scroll-linked reversível2.0 e catálogo independente, sem alteração de core/valores/form. PublicaçãoVercel é etapaDevOps posterior aoQA; developer não publicou.
+
+## Página atual — redesign2.0
+
+A prévia2.0 foi autorizada após o alinhamento de40perguntas e confirmação de paleta verde-noite/verde/branco. Redesenha os capítulos abaixo da abertura: problema visual, impacto na operação, promessa, benefícios+catálogo, público, conteúdo narrativo, experiência de Andrey,FAQ e inscrição. Sem grandes superfícies verde-claras; tipografia local com espaço e contraste. Não representa aprovação estética do usuário.
+
+Conteúdo em primeira pessoa de Andrey, com revisão contínua de custos/preços, concorrência e promoções. Público inclui quem começou a vender e quem já opera, sem faixa de faturamento.17M contextualizado abaixo do retrato na hero como receita nas operações em que atua; professor explica em texto. Foto real recortada em assets/andrey-recorte-v2.png, origem documentada pelo root.
+
+As tabs foram substituídas por3capítulos narrativos.5cenasHTML/SVG explicam custo/preço, impacto, conta, condições da oferta e regras. Traços, divisores e etapas acompanham a rolagem nativa de forma reversível com um RAF editorial, leituras em lote e escritas depois. Entradas e atenção breve complementam. Sem loop/hijack/dependências; movimento reduzido inicial/runtime fixa diagramas completos e cancelaRAF. Baseline editorial legível semJS/observer. O catálogo tem motor separado, preservado.
+
+index/styles/app e documentação atualizados. Form/config/pricing/catalog core não alterados. Formulário continua prévia sem envio. Data/horário/plataforma/gravação/programa/materiais/cases/integrações permanecem pendentes. Backup anterior em Documents/Codex/2026-11-14/margex-live-backup-antes-2.0. Não houve push/deploy nesta rodada pelo developer.
+
+## Demonstração atual — revisão 1.5 preservada
 
 O produto é a caixa Tramontina Master escolhida pelo usuário, com imagens reais. Todos os preços, descontos, custos e condições, inclusive os concorrentes, são valores de exemplo identificados na tela.
 
@@ -57,7 +73,7 @@ Para QA, catalog-panel expõe dataset.progress/mode e catalog-scroll expõe data
 
 ## Professor e provas
 
-O capítulo de autoridade apresenta R$ 17 milhões/mês nas operações em que Andrey atua, conforme informação fornecida pelo usuário. Não é faturamento pessoal nem resultado atribuído ao MargeX. O número não aparece na abertura. Não usar R$ 200 milhões/ano. Cases e depoimentos continuam pendentes e não foram fabricados.
+R$17milhões/mês nas operações em que Andrey atua, conforme informação fornecida e reconfirmada pelo usuário. Legenda moderada abaixo do retrato na hero, separada doH1/promessa, e contexto em texto no professor. Não é faturamento pessoal nem resultado atribuído ao MargeX. Não usarR$200milhões/ano. Cases e depoimentos continuam pendentes e não foram fabricados.
 
 ## Estado da inscrição
 

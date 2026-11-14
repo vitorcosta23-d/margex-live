@@ -1,6 +1,6 @@
 # MargeX — Pendências
 
-Atualizado em 13/11/2026. Base atual: revisão 1.5, com demonstração por rolagem. As versões anteriores não representam aprovação estética.
+Atualizado em14/11/2026. Redesign2.0 autorizado e implementado para avaliação; core da demonstração por rolagem1.5 preservado. QA técnico não representa aprovação estética.
 
 ## Decisões já confirmadas
 
@@ -12,8 +12,28 @@ Atualizado em 13/11/2026. Base atual: revisão 1.5, com demonstração por rolag
 - O usuário afirma que a ferramenta realiza essas ações via API. A prévia não conecta uma conta nem executa alterações reais.
 - Manter o rótulo Valores de exemplo. Não usar o rótulo rejeitado simulação ilustrativa.
 - Exemplo final: preço R$ 159,28; lucro por venda R$ 15,93; margem 10,0%; desconto 16,1%. Custos e taxas demonstrativos documentados no README e em pricing.js.
-- R$ 17 milhões/mês aparece somente no professor/autoridade, como receita nas operações em que Andrey atua. Não atribuir a faturamento pessoal, ao MargeX ou aos participantes. Não usar R$ 200 milhões/ano.
+- Preferência atual confirmada: R$17milhões/mês em legenda abaixo do retrato na hero, com contexto de receita nas operações em que atua, e contextualizado em texto no professor. Não atribuir ao faturamento pessoal, ao MargeX ou aos participantes. Não usarR$200milhões/ano.
 - Não criar depoimentos ou cases enquanto os materiais reais não chegarem.
+
+## Redesign2.0
+
+- Paleta verde-noite/verde/branco confirmada; retiradas grandes superfícies verde-claras.
+- Nova ordem com impacto na operação; composição póshero redesenhada, não somente recolorida.
+- Voz1pessoa e público incluindo quem começou a vender e operações existentes.
+- Conteúdo narrativo substitui tabs rejeitadas; FAQ e inscrição com nova hierarquia.
+-5cenasHTML/SVG e scroll-linked editorial reversível; reduced/noJS estático legível.
+- Foto real recortada aplicada, proveniência registrada pelo root. Catálogo/core/math/form/config preservados.
+- [ ] Avaliação estética do usuário da nova direção2.0.
+
+## Incorporado na revisão1.6
+
+- Revisão contínua de custos e preços, além do cálculo inicial.
+- Produto/fornecedor, comissão, frete, impostos, promoções e incentivos de comissão.
+- Público por necessidade operacional: muitos anúncios, planilhas, médias e concorrência; sem faturamento mínimo presumido.
+- Limites de margem e fatores Full/frete/prazo; sem transformar ferramenta em garantia de resultado.
+- Aula gratuita separada de assinatura e assessoria; exemplos financeiros do catálogo e autoridade17M mantidos no contexto aprovado.
+- Texto novo baseado nas respostas escritas e proposta já consolidadas; os áudios seguem pendentes de transcrição e não foram usados.
+- Preservados catálogo, cálculos, rolagem, formulário, variantes e arquivos de integração. Nenhum push/deploy nesta revisão; docs/DEPLOY.md preexistente preservado.
 
 ## Evento e conteúdo
 

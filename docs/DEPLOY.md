@@ -2,7 +2,7 @@
 
 ## Estado
 
-**RELEASE LIBERADA em2026-11-13:** pedido "finaliza agr" e QA final do responsável concluídos. Vídeos de notebook e celular gerados antes da publicação. Executar agora o envio ao repositório privado e o deployment Vercel; os registros de HOLD abaixo são históricos e foram superados por esta liberação.
+**PUBLICADO E VERIFICADO em2026-11-13:** https://margex-live.vercel.app . Repositório privado: https://github.com/vitorcosta23-d/margex-live . Pedido "finaliza agr", QA e vídeos concluídos antes da publicação. Os registros de HOLD abaixo são históricos e foram superados pela liberação final.
 
 QA recebido: sem overflow320/390/390x667/768/1440; scroll reversível; estado final15928centavos, lucro1593centavos e margem10%; FULL/frete ativos; tabs, formulário e movimento reduzido aprovados. Nenhum envio real de dados habilitado.
 
@@ -10,9 +10,9 @@ QA recebido: sem overflow320/390/390x667/768/1440; scroll reversível; estado fi
 
 O usuário pediu "finaliza agr". A preparação foi retomada; commit/push/deploy continuam aguardando o sinal operacional de QA e gravações prontos pelo responsável, sem nova reconfirmação conversacional do ato de publicar. Contas e ausência de colisão foram verificadas novamente em13/11. Build local reconstruído com24arquivos públicos; nenhuma operação remota executada até esse ponto.
 
-**HOLD — aguardando avaliação das gravações pelo usuário.** Preparação local em 2026-11-12. A autorização para GitHub e Vercel permanece como objetivo final, mas o alinhamento posterior exige mostrar a prévia gravada antes de publicar. Não executar commit, push, criação de repositório/projeto ou deploy até liberação do responsável após essa avaliação.
+**Histórico de12/11 — HOLD, já superado:** a preparação aguardou a prévia gravada e a liberação do responsável antes de executar as operações externas.
 
-Até esta atualização, nenhuma mutação externa foi executada: não há repositório/projeto criados, commit, push, PR ou deployment desta tarefa. Apenas consultas autenticadas e preparação local de build/config/documentação ocorreram.
+Até aquele registro de12/11, nenhuma mutação externa havia sido executada. As operações realizadas depois da liberação constam no resultado abaixo.
 
 Revisão1.5 em desenvolvimento: animação controlada pelo scroll, FULL/frete/desconto, oferta final15928centavos e margem10%, com autoridade17milhões do professor conforme novo alinhamento. Esses detalhes não mudam a lista de arquivos públicos do build. Os scripts continuam com os mesmos nomes e as fotos/fontes atuais estão nos formatos permitidos. Não gerar ou publicar um artefato intermediário enquanto a implementação e a avaliação estiverem em andamento.
 
@@ -61,4 +61,26 @@ Preparação remota executada em2026-11-13 após liberação do QA:
 - Branch de release: `dev/feat/margex-live`, sem envio a uma `main` existente.
 - Projeto Vercel novo: `margex-live`, contexto `vitor-costa`.
 - ID do projeto retornado pelo CLI: `prj_bGWwbGB5aNUQ94sMaQTKwIOjhXLA`.
-- Commit, deployment, URL final e hashes: registrar após execução e verificação, sem antecipar resultado.
+- Commit inicial: `37bd9b284251f4f01bf6c8cfbb0eece0ed12fc4f`.
+- Commit final de release e SHA remoto verificado: `370d9e66c122aecfdeca36628f6c9c131a38c462`.
+- Deployment: `dpl_35KFz7L1e2Dm1aowHSC3HQDrb6KX`, estado `READY`, target `production`.
+- URL estável: https://margex-live.vercel.app .
+- URL imutável: https://margex-live-v0gt10ky9-vitor-costa.vercel.app .
+- Relatório local: `qa-output/release-verification-2026-11-13.json`, conferido às16:52:07UTC.
+
+O primeiro deployment falhou por ausência da pasta assets no upload. A correção foi somente de empacotamento: incluir explicitamente o diretório pai e os formatos dos arquivos em `.vercelignore`. A regra foi verificada antes do retry, que recebeu26arquivos de fonte, gerou24arquivos públicos e terminou `READY`. Não houve modificação do frontend entre o QA final e a release.
+
+### Integridade pública
+
+Os quatro arquivos responderam HTTP200 e seus hashes públicos coincidem com os respectivos arquivos finais de `dist/`:
+
+| Arquivo | SHA-256 |
+| --- | --- |
+| index.html | c65a190896a1da5c1104abd314d79f7edb86ba1cf7cfab4917b5227a673e1cbc |
+| styles.css | ba8c579b13384cb0e1df88a4bc70502a019f24d83503e9b5324fe8f3f70ba935 |
+| catalog.js | c9cfd699ee46de86dcfb5d909ce193ba5a45cf480c39ce2f2e67a27f08f2f380 |
+| pricing.js | e7a0e349cdbb7178cefd3dc849cf2e0beba7ecf85238d19e138d256b106a0353 |
+
+Formulário direto e imagens do professor/produto: HTTP200. `/docs/DEPLOY.md`, `/server.cjs` e `/.env`: HTTP404. CSP e `nosniff` conferidos. Root também concluiu o QA do site online em desktop e390x667, com estado final15928/1593/10%, FULL e frete ativos, sem erros próprios.
+
+Este registro foi atualizado localmente após a release. Não gerou novo deployment nem mudança de frontend.

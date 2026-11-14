@@ -1,5 +1,74 @@
 # MargeX Live — blueprint aprovado pelo briefing
 
+## Revisão2.1 — entrada de fotografia e palavras
+
+Pedido explícito: reforçar entrada de elementos/foto/textos aparecendo e exemplos se movendo com a rolagem; atualização Vercel seguirá pelo DevOps apósQA. Implementação local desta story não publica.
+
+Títulos principais aparecem por palavras em sequência curta, preservandoEM/BR/texto/espaços e leitura semântica. Fotografias têm entrada própria com deslocamento vertical e escala mínima, sem filtros oublur, duração560ms. Evitar animação dupla em pais/filhos. CTA da hero fica imediatamente disponível. Conteúdo sempre legível semJS/observer; reducedmotion inicial/runtime e foco/hash revelam tudo.
+
+Preservar camada scroll-linked reversível deSVG/etapas/divisores e catálogo; sem alterar números/cálculo/core/form/config/ordem/texto/brand/17M. Sem novas dependências. Backup externo pré2.1. QA pelo root, publicação separada.
+
+
+## Revisão2.0 — redesign autorizado após alinhamento
+
+Esta seção prevalece sobre as revisões visuais anteriores fora dos mecanismos e dados do catálogo. Usuário respondeu40perguntas, rejeitou a composição póshero e confirmou agora: preservar paleta MargeX verde-noite/verde/branco, retirar grandes fundos verde-claros e manter R$17milhões/mês no contexto atual de autoridade. Autorizou executar sem nova confirmação.
+
+### Direção confirmada
+
+Mobile primeiro e desktop completo. Escura, tecnológica e comercial; títulos fortes e grandes, espaço entre ideias, blocos abertos detalhados sem caixas genéricas. Hero atual é a referência positiva: preservar headlinebase e foto real dominante/natural. Sora/Figtree/JetBrains locais. Abaixo da hero redesenhar composição e narrativa, não somente trocar cores.
+
+Ordem: abertura → problema → impacto na operação → promessa/benefícios → faixa de benefícios e catálogo como solução → para quem é → conteúdo da live → experiência de Andrey → FAQ → inscrição. Público inclui quem começou a vender/estruturar a operação e quem já opera; não prometer curso de abrir conta/primeira venda. Voz em primeira pessoa de Andrey, provocação forte e didática.
+
+Problema: precificar uma vez não acompanha fornecedor/frete/concorrência/promoções. Impactos possíveis em caixa, estoque, descontos, tempo e oportunidades; sem valores de perda ou diagnóstico universal. Promessa educacional: saber o que revisar, analisar ofertas/promoções e entender limites/regras. Live prática/estratégica com MargeX em uso, não configuração individual da conta do participante.
+
+### Composição e motion
+
+Criar ilustrações autorais HTML/SVG explicativas: preço parado e variáveis; cadeia venda/margem/caixa/reposição; critério da revisão. Transformações pequenas relacionadas ao scroll nativo, traçosSVG/dashoffset e divisores por progresso reversível, destaque de nós impacto/regras e atenção breve uma vez. Um RAF atende scroll/resize/load com leituras antes das escritas; sem loop decorativo ou hijack. Entradas discretas complementam, não substituem explicação. Reduced motion inicial/runtime e noJS mostram conteúdo estático completo. Não transformar sticky/cards/ancestrais do catálogo.
+
+Catálogo mantém produto real/cards/IDs/math/timeline/corecatalog1.5. Apenas sua composição editorial e fundo externo passam a escuros. Não garantir topo ou tempo de resultado. Valores de exemplo, margem e lucro por unidade corretamente contextualizados.
+
+Substituir tabs de conteúdo rejeitadas por capítulos narrativos claros e acessíveis. FAQ nova composição editorial com perguntas numeradas, contraste alto, áreas grandes. Inscrição final forte e detalhada com próximo passo claro e aviso de prévia honesto. Form/config/pricing não alterados; assinatura/teste/assessoria não inclusos.Preferência posterior do usuário:17M em legenda moderada abaixo do retrato na hero, receita nas operações em que atua, separado da promessa; professor contextualiza em texto sem número gigante duplicado. Sem sellersmaisvendem/top1garantido/30s/semana→5min/churn/zero prejuízo.
+
+### Limites e entrega
+
+Sem dependências, servidor extra, push ou deploy. Preservar docs/DEPLOY dirty, histórias anteriores e ativos reais. Backup externo pré2.0. Blueprint e story antes da implementação. QA funcional/visual pelo root; aprovação técnica não equivale a aprovação estética do usuário. Data/horário/plataforma/gravação/materiais/cases e integrações seguem pendentes.
+
+
+## Revisão 1.8 — promessa da live e público do MargeX
+
+Pedido do usuário: “queria uma parte da promessa da live o que vai entregar e com base no conteúdo que ele mandou colocar comunicação puxado pra quem é o margex”. Preservar as revisões1.5–1.7. Acrescentar uma seção editorial própria entre problema e demonstração, presente nas versões completa e curta.
+
+- Promessa educacional: sair sabendo o que revisar antes de mudar o preço. Custos atualizados, limites de margem e condições da oferta orientam os ajustes; não prometer resultado financeiro ou posição no catálogo.
+- Quatro entregas: conferir margem considerando produto/comissão/frete/impostos; avaliar concorrência além do menor preço com Full/prazo; analisar promoções e rebates explicados como incentivos de comissão; entender regras/limites do MargeX para revisão de muitos anúncios. Não inclui configuração individual de conta, materiais, suporte ou gravação.
+- Hero preserva headline. Descrição conecta explicitamente revisão ao longo do mês; público: seller de produtos físicos no Mercado Livre, muitos anúncios/revisão frequente. Seção público aproxima comunicação do uso do MargeX: cálculo inicial insuficiente, planilhas/médias e promoções. Sem faturamento mínimo ou expansão da aula para Shopee.
+- Layout preserva a marca: superfície verde-noite,4entregas em grade editorial2x2/uma coluna mobile, linhas sutis, CTA que usa o formulário existente. Programa detalhado continua em definição. Novos alvos de motion explícitos sem pai/filho duplicado; catálogo sticky e ancestrais intactos.
+- Fonte: respostas escritas e proposta consolidadas no vault em14/11/2026. Áudios não transcritos não usados; nenhum churn, promessa de lucro/zero prejuízo ou oferta de plano acrescentado. Nenhum envio, publicação ou instalação.
+
+
+## Revisão 1.7 — movimentos nos contêineres da página
+
+Pedido direto do usuário: “coloca tbm animações em cada contener”. Acrescentar uma camada de entrada consistente nos capítulos existentes, preservando conteúdo1.6 e narrativa visual1.5. Esta revisão só altera motion em app.js/styles.css; não redesenha a página nem modifica catálogo, cálculos, formulário ou integrações.
+
+- Entradas progressivas via Web Animations API: opacity e translateY16px/440ms desktop;8px/380ms mobile. Stagger55ms limitado165ms desktop e35ms limitado105ms mobile, uma vez ao entrar. Sem loops, parallax, escala, blur ou bibliotecas.
+- Cobrir hero texto/foto, faixa de resultados, problema, introdução/apoios do catálogo, público, aprendizado/tabs, critérios/passos, professor/autoridade/timeline, dúvidas, fechamento e rodapé. Evitar alvos pai e filho duplicados.
+- NUNCA aplicar transform/opacity de entrada ao catalog-scroll/catalog-sticky/catalog-panel/cards ou ancestrais desses elementos. Manter rolagem, estado e identidade da demonstração intactos.
+- Estado data-motion-state pending/running/done para inspeção. Pending tem visibilidade normal: falha ou ausência do observer/JS não esconde conteúdo. Navegação por foco/hash revela alvos imediatamente; CTA da hero continua disponível desde o início.
+- Reduced motion inicial ou alterado durante uso cancela animações de entrada/tabs/FAQ e mantém estados legíveis. Hover com lift2px/ícone apenas em ponteiro preciso, sem fingir que conteúdo informativo é clicável.
+- Nenhum helper, instalação, publicação ou integração nesta rodada. Backup externo em Documents/Codex/2026-11-14/margex-live-backup-antes-1.7.
+
+
+## Revisão 1.6 — conteúdo atualizado com o contexto MargeX de 14/11/2026
+
+Prioridade desta revisão: incorporar os dados fornecidos pelo responsável ao projeto existente, preservando as decisões visuais e funcionais da revisão 1.5. Origem: usuário pediu “com todos os dados ... melhorar a página de vendas” e “deixa completo a página pra eu ver como é”. Nenhum redesign ou publicação nesta rodada.
+
+- Problema central: revisão contínua, não apenas cálculo inicial. Produto/fornecedor, comissão, frete e impostos precisam estar atualizados; promoções e incentivos de comissão precisam caber nos limites da operação.
+- Público: vendedores de produtos físicos no Mercado Livre com muitos anúncios, revisão manual/planilhas, médias antigas ou comparação com concorrentes. Sem corte arbitrário de faturamento.
+- Três tabs preservadas e aprofundadas: custos atualizados; concorrentes/promoções; regras e revisão. Bloco de conexão reúne custos → limites de margem → oferta → revisão, com Full/frete/prazo como fatores além do menor preço. Bloco visível nas variantes completa e curta.
+- FAQ distingue aula gratuita, assinatura e assessoria separadas. Não prometer gravação, diagnóstico individual incluso ou resultado financeiro. Data, horário, duração, plataforma e programa detalhado continuam pendentes.
+- Preservar identidade, fotos, fontes locais, narrativa visual e exemplos do catálogo da 1.5. Sem alteração em catalog.js, pricing.js, app.js, formulário ou integrações. R$17milhões/mês permanece contextualizado somente na autoridade; preços do catálogo continuam exemplos e gratuidade da live permanece aprovada.
+- Não usar churn3%, garantia de margem/prejuízo zero, lucro líquido, resultado causal ou biografia sem respaldo. Áudios ainda não transcritos não são fonte desta revisão.
+
+
 ## Revisão1.5 — alinhamento respondido pelo usuário
 
 Esta seção prevalece sobre as versões anteriores. Usuário respondeu as9perguntas e autorizou execução: abertura comheadline+fotoAndrey; faturamento somenteR$17milhões/mês na região de autoridade/professor/provas; catálogo real comdesconto,FULL,fretegrátis; suaoferta começa última; MargeXanalisa margem/precificação/aplicacondições e oferta vai ao topo com10%demargem. Afirmou que a ferramenta realiza essas ações viaAPI. Movimento guiado pela ROLAGEM, não timer6s. Melhorar acabamento geral sem acrescentar explicações excessivas. Pediu gravação da prévia para avaliar antes da publicação jáautorizada.
