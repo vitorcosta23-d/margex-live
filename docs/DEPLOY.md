@@ -1,6 +1,46 @@
 # Publicação MargeX
 
-## Estado
+## Estado atual — atualização 2.1.1 em 14/11/2026
+
+**PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Autorização explícita do usuário para publicar a atualização de entradas de foto/texto e exemplos acompanhando a rolagem. QA2.1 e QA2.1.1 liberados pelo root antes dos respectivos envios.
+
+- Branch: `dev/feat/margex-live`, sem envio a `main`.
+- Source commit final: `fd79c0f898a64631a49f6c7da3bcf3042fa0fc47`, confirmado no remoto.
+- Deployment final: `dpl_8E6hDmj2N1FUsk9BeJfTXhPfHZLK`, estado `READY`, target `production`.
+- URL imutável: https://margex-live-8k9x9luv4-vitor-costa.vercel.app .
+- Relatório: `qa-output/release-verification-2026-11-14.json`.
+
+A atualização reúne a direção escura2.0, narrativa/impacto operacional, FAQ e fechamento refeitos, foto recortada, entradas sequenciais de palavras e cenas ligadas à rolagem nativa. Autoridade17M permanece contextualizada às operações em que Andrey atua. O catálogo e seus cálculos foram preservados; valores e condições continuam identificados como exemplos.
+
+A correção2.1.1 aguarda a foto carregar/decodificar antes de iniciar a entrada, para que uma conexão lenta não consuma a animação antes de o retrato aparecer. Root verificou atraso1600ms e cancelamento por movimento reduzido. Nenhum envio real de formulário foi habilitado.
+
+### Gates desta atualização
+
+- Sintaxe dos7scripts, build estático25arquivos e diffcheck aprovados.
+- Matemática em101estados: final15928centavos, taxas3345 e resultado1593; margem10% no exemplo.
+- Scan de53arquivos sem achados de segredos de alta confiança; IDs e âncoras íntegros.
+- CodeRabbit: **SKIPPED**, não localizado no PATH/caminhos canônicos. `skip_if_not_installed: true` confirmado na configuração; nenhum review ou zeroissues foi inventado.
+- QA do root:320/390x667/768/1440 sem overflow, texto/EM/quebras preservados, foto e palavras animando, exemplos reversíveis, catálogo0→1→0, FAQ/modal e movimento reduzido funcionais.
+
+### Integridade pública final
+
+Index, CSS, app, catálogo e cálculo responderam200 com hashes SHA-256 exatamente iguais à saída `dist/`. Foto recortada, fonte local, produto e formulário direto também retornaram200; `/docs/DEPLOY.md`, `/server.cjs`, `/.env` e `/.git/config` retornaram404. CSP e `nosniff` conferidos no relatório.
+
+| Arquivo | SHA-256 público/dist |
+| --- | --- |
+| index.html | 0797544e45ffb703142db70b9b56376d16009a1a023b6bd909ca9479199126b8 |
+| styles.css | a2a92d67ffcf224bebe6a8ed582ea417b3bf5fe3945b27a2e47dc848b3c2ad24 |
+| app.js | 24b2c64e8a956ec275e0ee95449a8191554f30ff438e2923260efacbfed93d3e |
+| catalog.js | c9cfd699ee46de86dcfb5d909ce193ba5a45cf480c39ce2f2e67a27f08f2f380 |
+| pricing.js | e7a0e349cdbb7178cefd3dc849cf2e0beba7ecf85238d19e138d256b106a0353 |
+
+Snapshot intermediário2.1: source `7c91b5bac11b50d444186da3a0cee1e88b3609b5`, deployment `dpl_eNzvh8Fo3qsVz6Xik1JKLdHrhZUF`. Foi substituído pela2.1.1 após o root detectar a entrada da foto concluindo antes do carregamento lento. O release final é o indicado acima.
+
+O formulário continua como prévia sem gravação/inscrição confirmada. Programa, agenda, integração Planilhas/CRM e grupo continuam sujeitos às pendências do produto. Esta documentação não habilita serviços nem altera a aplicação publicada.
+
+QA online do root no alias final: HTTP200, mobile390x667 sem overflow, H1 com sete palavras animadas e EM preservado, foto recortada correta, catálogo no resultado com margem10%, modal abre, formIsPreview=true e nenhum pageerror observado.
+
+## Histórico da publicação de 13/11/2026
 
 **PUBLICADO E VERIFICADO em2026-11-13:** https://margex-live.vercel.app . Repositório privado: https://github.com/vitorcosta23-d/margex-live . Pedido "finaliza agr", QA e vídeos concluídos antes da publicação. Os registros de HOLD abaixo são históricos e foram superados pela liberação final.
 
