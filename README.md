@@ -29,6 +29,14 @@ O servidor atende apenas em 127.0.0.1:4318. PORT permite outra porta.
 - build.cjs e vercel.json: preparação da publicação, sob responsabilidade do fluxo DevOps.
 - PENDENCIAS.md: conteúdo, materiais e integrações ainda em aberto.
 
+## Prova social em vídeo — revisão2.2
+
+Três vídeos reais fornecidos pelo usuário, editados somente comlegendas/tratamento deáudio e revisados pelo root, em um único#cases após professor/antesFAQ. Cada vídeo separado: Prova1—Mara/LyvanHome;Prova2—Júnior/SóSom;Prova3—AnaPaula/DistribuidoraRotamax. Resumos individuais em paráfrase abaixo de cada player, sem citação ou resultado inventado.
+
+PlayersHTML5 comcontrols/playsinline/preloadnone e posters,objectfitcontain9:16,3colunas desktop/1coluna mobile. Semautoplay; iniciarum pausa osoutros. Sources/posters noHTML para baseline semJS. Seisfinais verificados emassets/provas/depoimento-01.mp4 e.jpg até03, total45.416.274bytes. Originais/transcrições continuam fora do artefato público.
+
+Servidor local suportavideo/mp4 e singlebyteRanges206/HEAD/416, comCSPmedia-srcself. Build usa lista exata dos6finais eSHA256;Vercelignore expõe osmesmos nomes. QA de reprodução/seek pelo root. Nenhum push/deploy nesta implementação; formulário permaneceprévia semenvio.
+
 ## Entradas atuais — revisão2.1
 
 Títulos principais aparecem por palavras com sequência curta; os nós de texto são envolvidos emspans sem alterarEM/BR/espaços, conteúdo ou leitura semântica. Fotografias têm entrada própria de560ms com deslocamento e escala mínima, semfiltros/blur. Alvos de seção foram separados para evitar animação dupla de pai/filho. CTA continua imediato.
@@ -73,7 +81,7 @@ Para QA, catalog-panel expõe dataset.progress/mode e catalog-scroll expõe data
 
 ## Professor e provas
 
-R$17milhões/mês nas operações em que Andrey atua, conforme informação fornecida e reconfirmada pelo usuário. Legenda moderada abaixo do retrato na hero, separada doH1/promessa, e contexto em texto no professor. Não é faturamento pessoal nem resultado atribuído ao MargeX. Não usarR$200milhões/ano. Cases e depoimentos continuam pendentes e não foram fabricados.
+R$17milhões/mês nas operações em que Andrey atua, conforme informação fornecida e reconfirmada pelo usuário. Legenda moderada abaixo do retrato na hero, separada doH1/promessa, e contexto em texto no professor. Não é faturamento pessoal nem resultado atribuído ao MargeX. Não usarR$200milhões/ano. Três depoimentos reais recebidos e integrados em15/11; outros cases/resultados continuam pendentes e não foram fabricados.
 
 ## Estado da inscrição
 

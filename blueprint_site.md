@@ -1,5 +1,16 @@
 # MargeX Live — blueprint aprovado pelo briefing
 
+## Revisão2.2 — três vídeos reais como prova social
+
+Pedido explícito15/11/2026: legendar/melhorar áudio de3vídeos fornecidos e colocá-los no projeto. Developer web integra apenas os finais processados pelo root/mediaagent; não altera conteúdo audiovisual.
+
+Seção #cases após professor e antesFAQ, escura e alinhada2.1. Três playersHTML5 controls/playsinline/preload=none com poster; desktop3colunas e mobile1coluna. Títulos confirmados pelo usuário: Prova 1/2/3. Nomes/empresas autorizados e resumos individuais de1frase fundamentados na transcrição e fornecidos pelo root, em paráfrase. Um único contêiner#cases com3players separados. Sem número/claim inventado. Proporção ajustada à fonte comobject-fitcontain. Semautoplay, música ou loader dos vídeos na abertura; reprodução deum pausa osoutros.
+
+Em15/11 os6finais foram recebidos, revisados pelo root e verificados (45.416.274bytes). Seção ready/visível, sources/posters noHTML após conferência. Finais públicos assets/provas/depoimento-01.mp4 e.jpg até03. Originais/transcrições/logs não entram noartefato público.
+
+Build com lista estrita de seis finais, subpasta segura e verificaçãoSHA256. Servidor local permitevideo/mp4, pedidos singlebyteRanges206/HEAD e416. Vercelignore expõe sóseisnomes. Semdependências/push/deploy neste trabalho web; publicação coordenada pelo root após revisão dosvídeos.
+
+
 ## Revisão2.1 — entrada de fotografia e palavras
 
 Pedido explícito: reforçar entrada de elementos/foto/textos aparecendo e exemplos se movendo com a rolagem; atualização Vercel seguirá pelo DevOps apósQA. Implementação local desta story não publica.

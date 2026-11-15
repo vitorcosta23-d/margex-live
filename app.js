@@ -20,7 +20,7 @@
     '.lesson-copy > .lesson-number', '.lesson-copy > h3', '.lesson-copy > p',
     '.calculation-scene', '.offer-scene', '.rules-scene', '.learning-footer',
     '.teacher-photo > img', '.teacher-photo > figcaption', '.teacher-copy > .eyebrow', '.teacher-copy > h2', '.teacher-description', '.teacher-authority',
-    '.teacher-perspective', '.teacher-facts > span', '.faq-heading > .eyebrow', '.faq-heading > h2', '.faq-heading > p', '.faq-prompt', '.faq-list > details',
+    '.teacher-perspective', '.teacher-facts > span', '.proof-heading > .eyebrow', '.proof-heading > h2', '.proof-heading > p', '.proof-card', '.faq-heading > .eyebrow', '.faq-heading > h2', '.faq-heading > p', '.faq-prompt', '.faq-list > details',
     '.closing-copy > .eyebrow', '.closing-copy > h2', '.closing-copy > p', '.closing-copy > .button',
     '.closing-meta', '.signup-route > .route-title', '.signup-route li', '.route-preview',
     '.site-footer > .brand', '.site-footer > span', '.site-footer > .review-panel'
@@ -270,6 +270,12 @@
       ctaObserver.observe(closingCta);
     } catch { mobileCta.hidden = false; }
   }
+
+  // User-initiated playback only. Keep simultaneous voices from overlapping.
+  const proofVideos=Array.from(document.querySelectorAll('.proof-video'));
+  proofVideos.forEach(video => video.addEventListener('play',() => {
+    proofVideos.forEach(other => { if (other!==video && !other.paused) other.pause(); });
+  }));
 
   document.querySelectorAll('.faq-list details').forEach(details => {
     const summary = details.querySelector('summary');

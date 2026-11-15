@@ -1,6 +1,6 @@
 # MargeX — Pendências
 
-Atualizado em14/11/2026. Redesign2.0 autorizado e implementado para avaliação; core da demonstração por rolagem1.5 preservado. QA técnico não representa aprovação estética.
+Atualizado em15/11/2026. Redesign2.0 autorizado e implementado para avaliação; core da demonstração por rolagem1.5 preservado. QA técnico não representa aprovação estética.
 
 ## Decisões já confirmadas
 
@@ -13,7 +13,7 @@ Atualizado em14/11/2026. Redesign2.0 autorizado e implementado para avaliação;
 - Manter o rótulo Valores de exemplo. Não usar o rótulo rejeitado simulação ilustrativa.
 - Exemplo final: preço R$ 159,28; lucro por venda R$ 15,93; margem 10,0%; desconto 16,1%. Custos e taxas demonstrativos documentados no README e em pricing.js.
 - Preferência atual confirmada: R$17milhões/mês em legenda abaixo do retrato na hero, com contexto de receita nas operações em que atua, e contextualizado em texto no professor. Não atribuir ao faturamento pessoal, ao MargeX ou aos participantes. Não usarR$200milhões/ano.
-- Não criar depoimentos ou cases enquanto os materiais reais não chegarem.
+- Três depoimentos reais recebidos e editados em15/11, apenas com legendas e tratamento de áudio. Prova1/2/3 no mesmo contêiner, cada vídeo separado com nome/empresa e resumo próprio. Não inventar outros testemunhos ou resultados.
 
 ## Redesign2.0
 
@@ -48,7 +48,8 @@ Atualizado em14/11/2026. Redesign2.0 autorizado e implementado para avaliação;
 - [ ] Foto original em alta resolução. A foto atual vem da própria página Ecommerplace.
 - [ ] Gravação/capturas reais do MargeX para futuras demonstrações.
 - [ ] Arquivos originais de marca, caso substituam as imagens extraídas do manual.
-- [ ] Cases, depoimentos e resultados autorizados para divulgação.
+- [x] Três depoimentos fornecidos/autorizados: Mara—Lyvan Home; Júnior—SóSom; Ana Paula—Distribuidora Rotamax. Vídeos legendados/áudio tratado revisados pelo root e integrados como Prova1/2/3.
+- [ ] Outros cases/resultados, se houver: receber materiais e autorização; não fabricar.
 - [ ] Validar com Andrey a base e os parâmetros demonstrativos de precificação.
 
 ## Formulário e qualificação
