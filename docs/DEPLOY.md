@@ -1,4 +1,8 @@
-# Release2.3 em16/11/2026 — quarto depoimento
+# Release2.3 em16/11/2026 — publicado e verificado
+
+**PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `c7156bc064605403aea73c93d9ff4bef25b31469`, confirmado no remoto. Deployment `dpl_3wNHRaDT75oC5MxH9e62VJiSxHJV`, READYproduction. URLimutável https://margex-live-18gzxxzty-vitor-costa.vercel.app .
+
+Hashes públicos index/styles/app/catalog/pricing e oito ativos01–04 coincidem comdist e source; quatro MP4Range206/MIMEvideo/mp4 aprovados. CSPmedia-src self/nosniff conferidos. docs/server/.env/.git/config e intermediários01/04 retornam404. RootQAonline: quatro players/nomes/resumos, sem labels numerados/overflow390;04play+seek12s480×854 semerro, zero pageerrors. Relatório qa-output/release-verification-2026-11-16.json PASS. Formulário continua prévia sem envio.
 
 QA2.3LIBERADO pelo root antes de commit/push/deploy. Projeto existente margex-live, contexto vitor-costa, branch dev/feat/margex-live. Quarto vídeo de Milo — Magazine do EPI,30,93s480×854, legendas e poster revisados. Cartões identificados por nome/empresa, sem rótulos Prova1/2/3. Quatro players separados; demais três vídeos preservados.
 
