@@ -1,4 +1,8 @@
-# Release2.4 — contador e data da live
+# Release2.4 — publicado e verificado
+
+**PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `7c100da8f0735c4c864482a4942a1e02c49c4f53` confirmado no remoto; deployment `dpl_Dtq3Y9sixHWebZTGQCUzUKdRa2Pv`, READYproduction. URLimutável https://margex-live-fmh1uwm7s-vitor-costa.vercel.app . Relatório qa-output/release-verification-2.4-2026-11-16.json PASS: frontend e oito ativos HTTP200/hashesdist+source, quatroRanges206, privados404 e CSP/nosniff preservados.
+
+RootQAonlinePASS: alias com23NOV/segunda/20hBrasília/ISOT20-03; segundos59→58 em1,2s;390semoverflow, banner topo0 e cabeçalho apósbottom184,8 semsobreposição; quatro players preservados; formulário direto com mesma data/hora; zero pageerrors. Captura qa-output/countdown-online-2026-11-16.png.
 
 QA2.4LIBERADO antes de publicação. Live confirmada segunda-feira23/11/2026 às20h Brasília, Esquenta Black Mercado Livre. Banner no topo e contador pelo instante2026-11-23T20:00:00-03:00; expiração emzero e data visível semJavaScript. Formulário direto mostra mesmo horário; permanece prévia sem envio, planilha ou backend conectados.
 
