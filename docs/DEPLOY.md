@@ -1,3 +1,17 @@
+# Release2.3 em16/11/2026 — quarto depoimento
+
+QA2.3LIBERADO pelo root antes de commit/push/deploy. Projeto existente margex-live, contexto vitor-costa, branch dev/feat/margex-live. Quarto vídeo de Milo — Magazine do EPI,30,93s480×854, legendas e poster revisados. Cartões identificados por nome/empresa, sem rótulos Prova1/2/3. Quatro players separados; demais três vídeos preservados.
+
+Gates: build33arquivos públicos; fonte35arquivos59.582.474bytes; oito ativos finais56.043.654bytes; maior arquivo28.649.689bytes. Sintaxe/diffcheck, scan63arquivos sem achados, IDs/âncoras íntegros e prévia sem envio preservada. Root:320/390/768/1440semoverflow, quatro reproduções semMediaError, pausa exclusiva, seek04, quatroRanges206, nenhum MP4antesplay, zero pageerrors. CodeRabbit SKIPPED conforme indisponibilidade documentada.
+
+Limites conservadores: upload abaixo100.000.000bytes e arquivos abaixo50MiB. Pacote contém apenas finais01–04 MP4/JPG, assets permitidos e frontend; originais, transcrições, docs e credenciais excluídos. Relatório final: qa-output/release-verification-2026-11-16.json.
+
+## Histórico2.2 confirmado em16/11
+
+A publicação15/11 concluiu: source837d805f5fc4c63039f72229bc0292de630383db, deploymentdpl_CmGZfT1rCdBdVT3tmumzPKkSd8Xt READYproduction, URLimutável https://margex-live-888pujbjx-vitor-costa.vercel.app . SHA remoto e hashes públicos de index/styles/app e três MP4 reconferidos iguais ao relatório15Nov. Este registro supera a ausência da etapa2.2 no histórico anterior.
+
+---
+
 # Publicação MargeX
 
 ## Estado atual — atualização 2.1.1 em 14/11/2026

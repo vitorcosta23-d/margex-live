@@ -81,7 +81,7 @@ Para QA, catalog-panel expõe dataset.progress/mode e catalog-scroll expõe data
 
 ## Professor e provas
 
-R$17milhões/mês nas operações em que Andrey atua, conforme informação fornecida e reconfirmada pelo usuário. Legenda moderada abaixo do retrato na hero, separada doH1/promessa, e contexto em texto no professor. Não é faturamento pessoal nem resultado atribuído ao MargeX. Não usarR$200milhões/ano. Três depoimentos reais recebidos e integrados em15/11; outros cases/resultados continuam pendentes e não foram fabricados.
+R$17milhões/mês nas operações em que Andrey atua, conforme informação fornecida e reconfirmada pelo usuário. Legenda moderada abaixo do retrato na hero, separada doH1/promessa, e contexto em texto no professor. Não é faturamento pessoal nem resultado atribuído ao MargeX. Não usarR$200milhões/ano. Quatro depoimentos reais recebidos e integrados em15–16/11; outros cases/resultados continuam pendentes e não foram fabricados.
 
 ## Estado da inscrição
 

@@ -15,7 +15,7 @@ for (const item of fs.readdirSync(assetRoot,{withFileTypes:true})) {
 }
 // Explicit final files only. Originals, transcripts, logs and arbitrary subfolders are private.
 const proofRoot=path.join(assetRoot,'provas');
-const proofNames=[1,2,3].flatMap(index => ['mp4','jpg'].map(extension => `depoimento-${String(index).padStart(2,'0')}.${extension}`));
+const proofNames=[1,2,3,4].flatMap(index => ['mp4','jpg'].map(extension => `depoimento-${String(index).padStart(2,'0')}.${extension}`));
 if (fs.existsSync(proofRoot)) {
   if (fs.lstatSync(proofRoot).isSymbolicLink() || !fs.statSync(proofRoot).isDirectory()) throw new Error('Pasta de provas inválida.');
   for (const name of proofNames) {

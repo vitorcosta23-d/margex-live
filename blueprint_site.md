@@ -1,5 +1,11 @@
 # MargeX Live — blueprint aprovado pelo briefing
 
+## Revisão 2.3 — quarto depoimento e nomes nos cartões
+
+Pedido direto de16/11/2026: editar o quarto vídeo enviado, colocá-lo no site e retirar “Prova1/2/3” e demais títulos numerados. Esta revisão prevalece sobre a identificação anterior. Um único #cases com quatro players independentes; nome da pessoa em h3 acessível também ao player, empresa como apoio e resumo individual abaixo. Preservar os três resumos atuais e seus ativos. Quarto resumo/identificação somente após confirmação fundamentada na transcrição; não solicitar mídia inexistente enquanto aguarda.
+
+Grade desktop2×2 para manter tamanho e legibilidade dos vídeos9:16, uma coluna abaixo900px. HTML5 controls/playsinline/preload=none/poster/object-fitcontain e pausa dos demais players preservados. Finais04 em assets/provas/depoimento-04.mp4 e.jpg, allowlist estrita de oito finais no build/servidor/upload. Sem originais/intermediários/transcrições na publicação. Sem novas dependências ou mudanças emform/config/pricing/catalog. Backup externo antes da edição; QA e publicação pelo root.
+
 ## Revisão2.2 — três vídeos reais como prova social
 
 Pedido explícito15/11/2026: legendar/melhorar áudio de3vídeos fornecidos e colocá-los no projeto. Developer web integra apenas os finais processados pelo root/mediaagent; não altera conteúdo audiovisual.

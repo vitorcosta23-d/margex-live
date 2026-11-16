@@ -7,7 +7,7 @@ const port = Number(process.env.PORT || 4318);
 const publicFiles = new Set(['/index.html', '/formulario.html', '/styles.css', '/app.js', '/form.js', '/config.js', '/pricing.js', '/catalog.js']);
 const mime = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.png':'image/png', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.webp':'image/webp', '.svg':'image/svg+xml', '.ttf':'font/ttf', '.woff2':'font/woff2', '.woff':'font/woff', '.mp4':'video/mp4' };
 const assetExtensions = new Set(['.png', '.jpg', '.jpeg', '.webp', '.svg', '.ttf', '.woff2', '.woff']);
-const proofFiles = new Set([1,2,3].flatMap(index => ['mp4','jpg'].map(extension => `/assets/provas/depoimento-${String(index).padStart(2,'0')}.${extension}`)));
+const proofFiles = new Set([1,2,3,4].flatMap(index => ['mp4','jpg'].map(extension => `/assets/provas/depoimento-${String(index).padStart(2,'0')}.${extension}`)));
 
 function parseRange(header,size) {
   const match = /^bytes=(\d*)-(\d*)$/.exec(header);
