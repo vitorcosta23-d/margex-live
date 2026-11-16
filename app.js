@@ -1,4 +1,36 @@
 'use strict';
+// Event time includes its UTC offset, so every visitor counts toward the same instant.
+(() => {
+  const banner = document.querySelector('[data-live-countdown]');
+  if (!banner) return;
+  const eventTime = banner.querySelector('time[datetime]');
+  const status = banner.querySelector('[data-countdown-status]');
+  const timer = banner.querySelector('[role="timer"]');
+  const target = Date.parse(eventTime?.dateTime || '');
+  if (!Number.isFinite(target) || !status || !timer) return;
+  const units = ['days', 'hours', 'minutes', 'seconds'];
+  const digits = units.map(unit => banner.querySelector(`[data-countdown-unit="${unit}"]`));
+  if (digits.some(element => !element)) return;
+  let interval = null;
+
+  function updateCountdown() {
+    const remaining = Math.max(0, Math.ceil((target - Date.now()) / 1000));
+    const values = [Math.floor(remaining / 86400), Math.floor(remaining / 3600) % 24, Math.floor(remaining / 60) % 60, remaining % 60];
+    digits.forEach((element, index) => { element.textContent = String(values[index]).padStart(2, '0'); });
+    timer.setAttribute('aria-label', `${values[0]} dias, ${values[1]} horas, ${values[2]} minutos e ${values[3]} segundos para o horário da live`);
+    banner.dataset.countdownReady = 'true';
+    banner.dataset.countdownState = remaining === 0 ? 'started' : 'upcoming';
+    if (remaining === 0) {
+      status.textContent = 'Chegou o horário da live';
+      if (interval !== null) window.clearInterval(interval);
+    }
+    return remaining;
+  }
+
+  if (updateCountdown() > 0) interval = window.setInterval(updateCountdown, 1000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) updateCountdown(); });
+})();
+
 (() => {
   const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
   const short = new URLSearchParams(window.location.search).get('versao') === 'curta';

@@ -1,5 +1,13 @@
 # MargeX Live — blueprint aprovado pelo briefing
 
+## Revisão 2.4 — data confirmada e contagem regressiva
+
+Pedido direto de 16/11/2026: acrescentar no topo um contador para a live de segunda-feira, 23/11/2026, às 20h, como esquenta Black do Mercado Livre. Horário de Brasília conforme o contexto do usuário; instante único `2026-11-23T20:00:00-03:00`.
+
+Faixa antes do header, no fluxo da página, sem sobrepor conteúdo. Verde-noite/verde/branco e fontes locais existentes. Título “Esquenta Black Mercado Livre”, data estática legível sem JavaScript e unidades dias/horas/minutos/segundos com largura estável. Contador usa o instante absoluto, atualiza sem animação e sem anunciar segundos ao leitor de tela. No início, encerra em zero e informa “Chegou o horário da live”, sem afirmar transmissão ativa nem inventar acesso.
+
+Substituir as referências visíveis a data/horário em definição na hero, FAQ e fechamento; duração/plataforma/gravação continuam pendentes. Rota direta também mostra data confirmada. Preservar headline, ordem, quatro depoimentos e ativos, animações, catálogo/cálculos e formulário em prévia. Sem integração, novas dependências ou publicação pelo developer. Backup externo antes de editar; QA visual e publicação pelo root/DevOps.
+
 ## Revisão 2.3 — quarto depoimento e nomes nos cartões
 
 Pedido direto de16/11/2026: editar o quarto vídeo enviado, colocá-lo no site e retirar “Prova1/2/3” e demais títulos numerados. Esta revisão prevalece sobre a identificação anterior. Um único #cases com quatro players independentes; nome da pessoa em h3 acessível também ao player, empresa como apoio e resumo individual abaixo. Preservar os três resumos atuais e seus ativos. Quarto resumo/identificação somente após confirmação fundamentada na transcrição; não solicitar mídia inexistente enquanto aguarda.

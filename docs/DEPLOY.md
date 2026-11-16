@@ -1,3 +1,11 @@
+# Release2.4 — contador e data da live
+
+QA2.4LIBERADO antes de publicação. Live confirmada segunda-feira23/11/2026 às20h Brasília, Esquenta Black Mercado Livre. Banner no topo e contador pelo instante2026-11-23T20:00:00-03:00; expiração emzero e data visível semJavaScript. Formulário direto mostra mesmo horário; permanece prévia sem envio, planilha ou backend conectados.
+
+Root aprovou320/390/600/768/1440semoverflow, banner sem sobreposição, quatro players, modal e zero pageerrors. Contador antes/exato/depois e Asia/Tokyo aprovados. DevOpsbuild33arquivos, fonte35arquivos59.587.838bytes; oito ativos preservados, scan64arquivos/diffcheckPASS. CodeRabbit indisponível conforme skip_if_not_installed já documentado. Projeto e branch existentes preservados.
+
+---
+
 # Release2.3 em16/11/2026 — publicado e verificado
 
 **PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `c7156bc064605403aea73c93d9ff4bef25b31469`, confirmado no remoto. Deployment `dpl_3wNHRaDT75oC5MxH9e62VJiSxHJV`, READYproduction. URLimutável https://margex-live-18gzxxzty-vitor-costa.vercel.app .
