@@ -1,4 +1,10 @@
-# Release2.6 — ativação de inscrições reais
+# Release2.6 — publicado e verificado
+
+**PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `c3d7702d72bc527fec0e78d3f6d41bb297dbb6d6`, remoto confirmado. Deployment `dpl_3Kr2gVbJQsiRAKKpqUpF1LewKsYS`, READYproduction; URLimutável https://margex-live-4clk14aim-vitor-costa.vercel.app .
+
+Verifier2.6PASS:20hashes públicos/source/dist, quatroRanges206,16privados404,APIevents/leads405AllowPOST. ConfigpúblicoformIsPreviewfalse e/api/leads conferido. Relatório qa-output/release-verification-2.6-2026-11-17.json. SemPOSTrealdeconversão ou cadastro peloDevOps.
+
+QAonline2.6PASS pelo root: página390 e formulário direto320HTTP200/savedtrue/ackevent_id igual request; inscrição confirmada/grupo visível,origins sales_page/direct_form corretas. Inválidozeroenvio;retryduplicate true mesmoUUID;ackrepetidorejeitado, dataLayersemcontatos,nooverflow/zeroerros. Cadastrostécnicosconsentfalse:servertrackingskipped,semLead/Purchasefalso. Cliquegrupo validado apenas commocks/navpreventDefault:WhatsAppGroupClick e whatsapp_group_click uma vez/mesmoID,semacessargrupo real. Emvisitas reais separadas:antesconsentzeroprovedores;1Meta+1GTM;Pixel1PageView+1ViewContent,CAPIambosHTTP200senttrue/IDsiguais;GA4page_view+view_content G-V4815EHTWE ambosHTTP204;zerorequestfail/pageerrors,quatrovídeos. CleanupplanilhaPASS:apenasA2:J3 eS2:U3 dostesteslimpos,8fórmulasK2:R2 idênticas/cabeçalhosS:Uintactos,UUIDszeroregistros/Resumo0.
 
 QA2.6LIBERADO após relay real/persistência/retry idempotente confirmados pelo root. Configuração pública ativaformIsPreviewfalse e submissionEndpoint/api/leads; texto de inscrição deixa de ser prévia. Mesmo Pixel/GTM/GA4/CSP/contador/oito ativos preservados. Credenciais e URLrelay permanecem privadas no servidor.
 
