@@ -1,4 +1,8 @@
-# Release2.10 — formulário sequencial
+# Release2.10 — publicado e verificado
+
+**PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `839d8030b12db890b92f16fab03a1e8f2ae7d599`,remotoconfirmado;deployment `dpl_JCMjZdthhi57sNKo2DGuYPXTnKp1` READYproduction,URLimutável https://margex-live-gr57ir50b-vitor-costa.vercel.app . Relatórioqa-output/release-verification-2.10-2026-11-17.json.
+
+QAonline2.10PASS pelo root em390modal/direto:umaquestãoinicial,Continuaravançaparaemail,Voltarretémnome,progresso1de7,semoverflow/erros,Pixel/ClarityIDspreservados. Nenhumsubmitreal. Verificaçãofocada7frontendhashesHTTP200source/dist,16privados404,quatroRanges1KB206/API405AllowPOST/CSP/nosniffPASS. Semnovodownloadintegral dosvídeosinalterados;10hasheslocais(mídias+WebP)preservadosnopreflight.
 
 QA2.10LIBERADO/DOCSREADY. Perguntas voltam a aparecer uma por vez,comVoltar/avançar,respostas preservadas,quatroqualificaçõescanônicas e ackdeduplicado. Clarity/contador/WebPs/IDs/CSP/envpreservados. Nenhuma mudança no backend.
 
