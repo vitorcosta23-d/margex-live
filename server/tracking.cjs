@@ -8,6 +8,13 @@ const FORM_ID = 'margex_live_signup';
 const MAX_BODY_BYTES = 16384;
 const PAGE_PATHS = new Set(['/', '/index.html', '/formulario.html']);
 const consentSchema = z.object({ analytics: z.boolean(), marketing: z.boolean() }).strict();
+// Versioned labels match the existing Sheet Regras. Weight edits remain in Sheets.
+const qualificationChoices = Object.freeze({
+  channel: Object.freeze(['Mercado Livre, com ou sem Shopee', 'Shopee, sem vender no Mercado Livre', 'Somente outros canais', 'Ainda não vendo']),
+  ad_count: Object.freeze(['Nenhum', 'De 1 a 50', 'De 51 a 200', 'De 201 a 500', '501 ou mais', 'Não sei informar']),
+  pricing_process: Object.freeze(['Manualmente, direto nos anúncios, sem planilha', 'Com planilha e alterações manuais nos anúncios', 'Uma ferramenta já atualiza os preços automaticamente', 'Não sei dizer como isso é feito']),
+  main_problem: Object.freeze(['Vendo, mas não sei com segurança qual margem sobra', 'Falta tempo para revisar custos, preços e promoções', 'Perco ofertas e não sei até onde posso ajustar o preço', 'Já controlo esses processos e quero aperfeiçoá-los'])
+});
 const cookieSchema = z.string().max(512).regex(/^fb\.\d\.\d{10,16}\.[A-Za-z0-9._-]+$/);
 const baseShape = {
   event_id: z.string().uuid(),
@@ -26,6 +33,7 @@ const safeText = (max) => z.string().trim().min(1).max(max).refine(value => !/[\
 const leadSchema = z.object({
   ...baseShape,
   form_id: z.literal(FORM_ID),
+  form_version: z.literal('2.7').optional(),
   name: safeText(100).min(2),
   email: z.string().trim().email().max(254),
   phone: z.string().trim().max(24).regex(/^[+\d\s().-]+$/).refine(value => /^\d{10,13}$/.test(value.replace(/\D/g, ''))),
@@ -37,10 +45,24 @@ const leadSchema = z.object({
     channel: safeText(150).optional(), ad_count: safeText(150).optional(),
     pricing_process: safeText(200).optional(), main_problem: safeText(200).optional()
   }).strict().optional()
-}).strict();
+}).strict().superRefine((data, context) => {
+  if (data.form_version !== '2.7') return;
+  const answers = data.qualification || {};
+  const requireChoice = key => {
+    if (!qualificationChoices[key].includes(answers[key])) context.addIssue({ code: 'custom', path: ['qualification', key], message: 'Selecione uma opção válida.' });
+  };
+  // Even optional hidden answers, when present, must be canonical labels.
+  for (const key of Object.keys(answers)) if (!qualificationChoices[key]?.includes(answers[key])) context.addIssue({ code: 'custom', path: ['qualification', key], message: 'Opção inválida.' });
+  requireChoice('channel');
+  if (!qualificationChoices.channel.slice(0, 2).includes(answers.channel)) return;
+  requireChoice('ad_count');
+  if (answers.ad_count === 'Nenhum') return;
+  requireChoice('pricing_process');
+  requireChoice('main_problem');
+});
 
 class ApiError extends Error {
-  constructor(status, code) { super(code); this.status = status; this.code = code; }
+  constructor(status, code, diagnostics = {}) { super(code); this.status = status; this.code = code; this.diagnostics = diagnostics; }
 }
 function sha256(value) { return createHash('sha256').update(value).digest('hex'); }
 function header(req, name) { const value = req.headers?.[name.toLowerCase()]; return typeof value === 'string' ? value : ''; }
@@ -124,11 +146,36 @@ async function fetchJson(fetcher, url, options, timeout) {
   let response;
   try { response = await fetcher(url, { ...options, signal: AbortSignal.timeout(timeout) }); }
   catch { throw new ApiError(502, 'UPSTREAM_UNAVAILABLE'); }
-  if (!response.ok) throw new ApiError(502, 'UPSTREAM_REJECTED');
+  if (!response.ok) {
+    const diagnostics = {};
+    if (Number.isInteger(response.status)) diagnostics.upstream_http_status = response.status;
+    try {
+      const rejected = await response.json();
+      if (Number.isInteger(rejected?.error?.code)) diagnostics.meta_error_code = rejected.error.code;
+      if (Number.isInteger(rejected?.error?.error_subcode)) diagnostics.meta_error_subcode = rejected.error.error_subcode;
+    } catch { /* Provider messages, bodies and identifiers must never enter logs. */ }
+    throw new ApiError(502, 'UPSTREAM_REJECTED', diagnostics);
+  }
   try { return await response.json(); } catch { throw new ApiError(502, 'INVALID_UPSTREAM_RESPONSE'); }
 }
-function createTrackingApi({ env = process.env, fetcher = globalThis.fetch, now = Date.now } = {}) {
+function createTrackingApi({ env = process.env, fetcher = globalThis.fetch, now = Date.now, logger } = {}) {
   const limit = createRateLimiter(now);
+  const receiptLogger = typeof logger === 'function' ? logger : env.VERCEL === '1' ? entry => console.info(JSON.stringify(entry)) : null;
+  function logLeadReceipt(data, saved, capiStatus, status, error) {
+    if (!receiptLogger) return;
+    const entry = {
+      type: 'margex_lead_receipt', received_at: new Date(now()).toISOString(),
+      event_id: data?.event_id || null, form_version: data ? data.form_version || 'legacy' : 'unknown',
+      consent_analytics: data?.consent.analytics ?? null, consent_marketing: data?.consent.marketing ?? null,
+      saved: saved?.saved === true, duplicate: saved?.duplicate === true,
+      capi_status: capiStatus, http_status: status,
+      error_code: error ? error instanceof ApiError ? error.code : 'INTERNAL_ERROR' : null
+    };
+    if (error instanceof ApiError) for (const key of ['upstream_http_status', 'meta_error_code', 'meta_error_subcode']) {
+      if (Number.isInteger(error.diagnostics[key])) entry[key] = error.diagnostics[key];
+    }
+    try { receiptLogger(entry); } catch { /* Observability must not undo a saved registration. */ }
+  }
   async function sendMeta(data, context, contacts) {
     const config = metaConfiguration(env);
     const userData = { client_user_agent: context.userAgent };
@@ -165,7 +212,7 @@ function createTrackingApi({ env = process.env, fetcher = globalThis.fetch, now 
       body: JSON.stringify({ secret, action: 'save_lead', lead: {
         lead_id: data.event_id, event_id: data.event_id, name: data.name, email: data.email,
         phone: data.phone, origin: data.origin, utm: data.utm || {}, qualification: data.qualification || {}, consent: data.consent,
-        attribution: { event_source_url: data.event_source_url, form_id: FORM_ID,
+        attribution: { event_source_url: data.event_source_url, form_id: FORM_ID, form_version: data.form_version || 'legacy',
           ...(data.consent.marketing && data.fbp ? { fbp: data.fbp } : {}),
           ...(data.consent.marketing && data.fbc ? { fbc: data.fbc } : {}) }
       } })
@@ -187,20 +234,28 @@ function createTrackingApi({ env = process.env, fetcher = globalThis.fetch, now 
   }
   async function leads(req, res) {
     let context;
+    let data;
+    let saved;
     try {
       if (req.method !== 'POST') { res.setHeader('Allow', 'POST'); throw new ApiError(405, 'METHOD_NOT_ALLOWED'); }
       context = requestContext(req, env); limit('lead', context);
-      const data = await parseBody(req, leadSchema);
+      data = await parseBody(req, leadSchema);
       data.event_source_url = sourceUrl(data.event_source_url, context.origin);
-      const saved = await persistLead(data);
+      saved = await persistLead(data);
       let serverTracking = data.consent.marketing ? 'not_configured' : 'skipped';
+      let trackingError;
       if (data.consent.marketing && !saved.duplicate) {
         try { await sendMeta({ ...data, event_name: 'Lead' }, context, data); serverTracking = 'sent'; }
-        catch (error) { serverTracking = error instanceof ApiError && error.status === 503 ? 'not_configured' : 'failed'; }
+        catch (error) { serverTracking = error instanceof ApiError && error.status === 503 ? 'not_configured' : 'failed'; trackingError = error; }
       } else if (saved.duplicate && data.consent.marketing) serverTracking = 'duplicate';
+      logLeadReceipt(data, saved, serverTracking, 200, trackingError);
       sendJson(res, 200, { ok: true, saved: true, lead_id: saved.lead_id, event_id: saved.event_id, duplicate: saved.duplicate, tracking: { server: serverTracking } }, context.origin);
-    } catch (error) { sendJson(res, error instanceof ApiError ? error.status : 500, { ok: false, saved: false, code: error instanceof ApiError ? error.code : 'INTERNAL_ERROR' }, context?.origin); }
+    } catch (error) {
+      const status = error instanceof ApiError ? error.status : 500;
+      logLeadReceipt(data, saved, 'not_attempted', status, error);
+      sendJson(res, status, { ok: false, saved: false, code: error instanceof ApiError ? error.code : 'INTERNAL_ERROR' }, context?.origin);
+    }
   }
   return { events, leads };
 }
-module.exports = { createTrackingApi, eventSchema, leadSchema };
+module.exports = { createTrackingApi, eventSchema, leadSchema, qualificationChoices };

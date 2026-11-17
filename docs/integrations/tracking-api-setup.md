@@ -41,6 +41,16 @@ JSON: `name`, `email`, `phone`, UUID `event_id`, `form_id:'margex_live_signup'`,
 
 Resposta de sucesso persistido: `{ok:true,saved:true,lead_id,event_id,duplicate,tracking:{server}}`. `tracking.server` pode ser sent, skipped, not_configured, failed ou duplicate; falha do rastreamento não desfaz cadastro já salvo. Erros de persistência nunca retornam sucesso nem autorizam Lead. Falta de configuração retorna 503. Erros não incluem contatos, tokens ou respostas brutas dos provedores.
 
+### Formulário versão2.7
+
+O novo cliente inclui `form_version:'2.7'`. Essa versão exige `qualification.channel` com texto canônico da aba Regras. Para Mercado Livre/Shopee exige também `ad_count`; quando for diferente de `Nenhum`, exige `pricing_process` e `main_problem`, inclusive se a quantidade de anúncios for desconhecida. Iniciantes/outros canais dispensam os campos de operação ativa. Campos enviados devem usar as opções exatas do contrato; respostas vazias são omitidas. O servidor valida esse contrato antes de acessar a planilha. A ausência de `form_version` é mantida para compatibilidade com abas antigas do formulário de três contatos.
+
+### Recibos privados de rastreamento
+
+No runtime Vercel, cada tentativa de cadastro produz log JSON `margex_lead_receipt`: UUID, versão, horário, consentimentos, saved/duplicate, estado CAPI e erro técnico seguro. Rejeições do provedor podem registrar somente status HTTP e code/subcode numéricos; nunca mensagens/corpos de resposta, contatos, hashes, cookies, tokens ou URLs. O logger é injetável em testes e não muda o resultado de uma inscrição se falhar. A retenção é a disponibilizada pelo provedor; não há nova coluna de recibo Meta ou atualização do Apps Script nesta etapa. A versão do formulário também acompanha a atribuição já armazenada na coluna U, aproveitando o contrato existente do relay.
+
+Um recibo `sent` comprova o aceite técnico da chamada conforme resposta da API. Não comprova, por si, a contagem final ou atribuição no Gerenciador de Anúncios. Eventos normais não recebem o `test_event_code` local; verificar a visualização correta na Meta antes de concluir ausência de disparo.
+
 ## Limites e validação
 
 POST/JSON, schema estrito Zod, corpo máximo 16 KiB, origem exata, URLs de conteúdo limitadas às páginas públicas conhecidas e timeouts. Limite por instância: 40 eventos/min e 10 inscrições/min por origem de rede. Esse limite reduz abuso em instâncias quentes, mas não é uma proteção distribuída; revisar limites/firewall no provedor antes de elevar volume. Não existem garantias de entrega nem fila persistente de retentativa CAPI nesta versão. Duplicatas de inscrição não reenviam o Lead servidor, evitando repetições silenciosas; um envio Meta que falhe depois da gravação precisa de acompanhamento.

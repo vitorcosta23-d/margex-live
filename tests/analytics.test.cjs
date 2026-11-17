@@ -12,6 +12,8 @@ function fixture(options = {}) {
   const requests = [];
   const listeners = {};
   const panelInputs = { analytics: { checked: false, focus() {} }, marketing: { checked: false, focus() {} } };
+  const layers = { summary: { hidden: false }, details: { hidden: true } };
+  const elements = [];
   const classList = { add() {}, remove() {}, toggle() {} };
   const footer = { append() {} };
   const document = {
@@ -22,9 +24,14 @@ function fixture(options = {}) {
     querySelector() { return footer; },
     addEventListener(name, callback) { listeners[name] = callback; },
     createElement(tagName) {
-      return { tagName, hidden: false, dataset: {}, setAttribute() {}, addEventListener() {}, focus() {},
-        querySelector(selector) { return selector.includes('marketing') ? panelInputs.marketing : panelInputs.analytics; }
+      const element = { tagName, hidden: false, dataset: {}, events: {}, setAttribute() {}, addEventListener(name, callback) { this.events[name] = callback; }, focus() {},
+        querySelector(selector) {
+          if (selector.includes('data-consent-layer')) return selector.includes('summary') ? layers.summary : layers.details;
+          return selector.includes('marketing') ? panelInputs.marketing : panelInputs.analytics;
+        }
       };
+      elements.push(element);
+      return element;
     }
   };
   const storage = initial => {
@@ -43,7 +50,9 @@ function fixture(options = {}) {
   vm.runInNewContext(source, { window, document, location, URL, URLSearchParams, Uint8Array, Set,
     fetch(url, init) { requests.push({ url, init }); return Promise.resolve({ ok: true }); }
   });
-  return { window, scripts, requests, listeners, tracking: window.MARGEX_TRACKING,
+  const panel = elements.find(element => element.tagName === 'section');
+  return { window, scripts, requests, listeners, tracking: window.MARGEX_TRACKING, panel, layers, panelInputs,
+    consentAction(action) { panel.events.click({ target: { closest() { return { dataset: { consent: action } }; } } }); },
     meta: () => Array.from(window.fbq?.queue || [], args => Array.from(args)),
     ga: () => window.dataLayer.filter(item => item[0] === 'event').map(item => Array.from(item))
   };
@@ -184,4 +193,39 @@ test('a real incoming fbclid supplies CAPI matching without exposing it to GA4 e
   assert.match(f.tracking.context().fbc, /^fb\.1\.\d{13}\.IncomingClick_ABC-123$/);
   assert.equal(JSON.parse(f.requests[0].init.body).fbc, f.tracking.context().fbc);
   assert.equal(JSON.stringify(f.window.dataLayer).includes('IncomingClick_ABC-123'), false);
+});
+
+test('the first cookies layer accepts both categories with one clear action', () => {
+  const f = fixture();
+  assert.match(f.panel.innerHTML, />Cookies</);
+  assert.match(f.panel.innerHTML, /data-consent="all">Aceitar cookies/);
+  assert.match(f.panel.innerHTML, /data-consent="none">Recusar não essenciais/);
+  assert.equal(f.layers.details.hidden, true);
+  f.consentAction('all');
+  assert.equal(f.tracking.getConsent().analytics, true);
+  assert.equal(f.tracking.getConsent().marketing, true);
+  assert.equal(f.scripts.length, 2);
+  assert.equal(f.panel.hidden, true);
+});
+
+test('preferences require a second deliberate choice and selected categories remain granular', () => {
+  const f = fixture();
+  f.consentAction('preferences');
+  assert.equal(f.layers.summary.hidden, true);
+  assert.equal(f.layers.details.hidden, false);
+  assert.equal(f.scripts.length, 0);
+  assert.equal(f.tracking.getConsent().marketing, false);
+  f.panelInputs.analytics.checked = true;
+  f.consentAction('selected');
+  assert.equal(f.tracking.getConsent().analytics, true);
+  assert.equal(f.tracking.getConsent().marketing, false);
+  assert.equal(f.scripts.length, 1);
+});
+
+test('an older recorded refusal is preserved when the simpler cookies UI is deployed', () => {
+  const f = fixture({ stored: { margex_tracking_consent_v1: JSON.stringify({ version: 1, analytics: false, marketing: false }) } });
+  assert.equal(f.panel.hidden, true);
+  assert.equal(f.scripts.length, 0);
+  assert.equal(f.tracking.getConsent().analytics, false);
+  assert.equal(f.tracking.getConsent().marketing, false);
 });

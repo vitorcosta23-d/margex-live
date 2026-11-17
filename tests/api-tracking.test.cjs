@@ -2,7 +2,7 @@
 const test = require('node:test');
 const assert = require('node:assert/strict');
 const { createHash } = require('node:crypto');
-const { createTrackingApi } = require('../server/tracking.cjs');
+const { createTrackingApi, qualificationChoices } = require('../server/tracking.cjs');
 
 const ID = '00000000-0000-4000-8000-000000000001';
 const ORIGIN = 'https://margex-live.vercel.app';
@@ -34,7 +34,7 @@ function mockFetch(responses) {
     const next = responses.shift();
     if (next instanceof Error) throw next;
     assert.notEqual(next, undefined, 'No unexpected provider request');
-    return { ok: next.status === undefined || next.status < 400, json: async () => next.json || next };
+    return { ok: next.status === undefined || next.status < 400, status: next.status || 200, json: async () => next.json || next };
   };
   return { fetcher, calls };
 }
@@ -168,4 +168,104 @@ test('invalid or incomplete contact details cannot enter the persistence provide
   for (const invalid of [{ email: 'invalid' }, { name: 'A' }, { phone: '123' }, { unexpected: 'no' }]) {
     assert.equal((await invoke(api.leads, lead(invalid))).status, 400);
   }
+});
+
+function version27(overrides = {}) {
+  return lead({ form_version: '2.7', qualification: {
+    channel: qualificationChoices.channel[0], ad_count: qualificationChoices.ad_count[2],
+    pricing_process: qualificationChoices.pricing_process[1], main_problem: qualificationChoices.main_problem[0]
+  }, consent: { analytics: false, marketing: false }, ...overrides });
+}
+test('version 2.7 requires every applicable canonical qualification before persistence', async () => {
+  const complete = version27();
+  const badCases = [
+    { ...complete, qualification: undefined },
+    { ...complete, qualification: { channel: qualificationChoices.channel[0] } },
+    { ...complete, qualification: { ...complete.qualification, ad_count: 'unknown_internal_id' } },
+    { ...complete, qualification: { ...complete.qualification, pricing_process: undefined } },
+    { ...complete, qualification: { ...complete.qualification, main_problem: '' } },
+    { ...complete, qualification: { ...complete.qualification, extra: 'not allowed' } },
+    { ...complete, form_version: '2.8' }
+  ];
+  const invalidLogs = [];
+  const api = createTrackingApi({ env: LEAD_ENV, fetcher: () => assert.fail('Incomplete qualification cannot be persisted'), logger: entry => invalidLogs.push(entry) });
+  for (const payload of badCases) assert.equal((await invoke(api.leads, payload)).status, 400);
+  assert.equal(invalidLogs.length, badCases.length);
+  assert.ok(invalidLogs.every(entry => entry.saved === false && entry.capi_status === 'not_attempted' && entry.error_code === 'INVALID_PAYLOAD'));
+});
+test('complete version 2.7 reaches the relay with all four exact labels', async () => {
+  const mock = mockFetch([{ ok: true, saved: true, lead_id: ID, event_id: ID }]);
+  const api = createTrackingApi({ env: LEAD_ENV, fetcher: mock.fetcher });
+  const payload = version27(); const result = await invoke(api.leads, payload);
+  assert.equal(result.status, 200); assert.equal(result.body.saved, true);
+  assert.deepEqual(mock.calls[0].body.lead.qualification, payload.qualification);
+  assert.equal(mock.calls[0].body.lead.attribution.form_version, '2.7');
+});
+test('educational channels need only channel, while no active listings needs channel and count', async () => {
+  for (const channel of qualificationChoices.channel.slice(2)) {
+    const mock = mockFetch([{ ok: true, saved: true, lead_id: ID, event_id: ID }]);
+    const api = createTrackingApi({ env: LEAD_ENV, fetcher: mock.fetcher });
+    assert.equal((await invoke(api.leads, version27({ qualification: { channel } }))).status, 200);
+  }
+  const mock = mockFetch([{ ok: true, saved: true, lead_id: ID, event_id: ID }]);
+  const api = createTrackingApi({ env: LEAD_ENV, fetcher: mock.fetcher });
+  assert.equal((await invoke(api.leads, version27({ qualification: { channel: qualificationChoices.channel[0], ad_count: 'Nenhum' } }))).status, 200);
+});
+test('unknown listing count still requires pricing process and main problem', async () => {
+  const noFollowup = version27({ qualification: { channel: qualificationChoices.channel[0], ad_count: 'Não sei informar' } });
+  const api = createTrackingApi({ env: LEAD_ENV, fetcher: () => assert.fail('No persistence before all applicable questions') });
+  assert.equal((await invoke(api.leads, noFollowup)).status, 400);
+  const mock = mockFetch([{ ok: true, saved: true, lead_id: ID, event_id: ID }]);
+  const completeApi = createTrackingApi({ env: LEAD_ENV, fetcher: mock.fetcher });
+  const payload = version27(); payload.qualification.ad_count = 'Não sei informar';
+  assert.equal((await invoke(completeApi.leads, payload)).status, 200);
+});
+test('a legacy open-tab contact-only registration remains compatible', async () => {
+  const mock = mockFetch([{ ok: true, saved: true, lead_id: ID, event_id: ID }]);
+  const api = createTrackingApi({ env: LEAD_ENV, fetcher: mock.fetcher });
+  const result = await invoke(api.leads, lead({ consent: { analytics: false, marketing: false } }));
+  assert.equal(result.status, 200); assert.equal(result.body.saved, true);
+});
+test('server receipts whitelist UUID, consent and status without personal data or hashes', async () => {
+  const logs = [];
+  const mock = mockFetch([{ ok: true, saved: true, lead_id: ID, event_id: ID }, { events_received: 1 }]);
+  const api = createTrackingApi({ env: { ...LEAD_ENV, VERCEL: '1' }, fetcher: mock.fetcher, now: () => NOW, logger: entry => logs.push(entry) });
+  const payload = version27({ consent: { analytics: true, marketing: true } });
+  const result = await invoke(api.leads, payload);
+  assert.equal(result.body.tracking.server, 'sent'); assert.equal(logs.length, 1);
+  assert.deepEqual(logs[0], {
+    type: 'margex_lead_receipt', received_at: new Date(NOW).toISOString(), event_id: ID,
+    form_version: '2.7', consent_analytics: true, consent_marketing: true,
+    saved: true, duplicate: false, capi_status: 'sent', http_status: 200, error_code: null
+  });
+  const serialized = JSON.stringify(logs);
+  for (const privateValue of [payload.name, payload.email, payload.phone, digest(payload.email.toLowerCase()), LEAD_ENV.META_CAPI_ACCESS_TOKEN, LEAD_ENV.MARGEX_LEADS_WEBHOOK_SECRET]) assert.equal(serialized.includes(privateValue), false);
+  assert.equal(serialized.includes(ORIGIN), false); assert.equal(serialized.includes('client_ip'), false);
+});
+test('a rejected Meta event produces numeric diagnostics in the private receipt, not provider text', async () => {
+  const logs = [];
+  const mock = mockFetch([{ ok: true, saved: true, lead_id: ID, event_id: ID }, { status: 400, json: { error: { code: 190, error_subcode: 463, message: 'DO_NOT_LOG_PROVIDER_TEXT', fbtrace_id: 'DO_NOT_LOG_TRACE' } } }]);
+  const api = createTrackingApi({ env: LEAD_ENV, fetcher: mock.fetcher, logger: entry => logs.push(entry) });
+  const result = await invoke(api.leads, version27({ consent: { analytics: true, marketing: true } }));
+  assert.equal(result.status, 200); assert.equal(result.body.saved, true); assert.equal(result.body.tracking.server, 'failed');
+  assert.equal(logs[0].upstream_http_status, 400); assert.equal(logs[0].meta_error_code, 190); assert.equal(logs[0].meta_error_subcode, 463);
+  assert.equal(logs[0].error_code, 'UPSTREAM_REJECTED');
+  assert.equal(JSON.stringify(logs).includes('DO_NOT_LOG'), false); assert.equal(JSON.stringify(result.body).includes('190'), false);
+});
+test('persistence failure and rejected marketing each leave an accurate receipt', async () => {
+  const failedLogs = [];
+  const failed = mockFetch([{ status: 503, json: { code: 'PRIVATE_RELAY_FAILURE' } }]);
+  const api = createTrackingApi({ env: LEAD_ENV, fetcher: failed.fetcher, logger: entry => failedLogs.push(entry) });
+  assert.equal((await invoke(api.leads, version27())).status, 502);
+  assert.equal(failedLogs[0].saved, false); assert.equal(failedLogs[0].capi_status, 'not_attempted');
+  const deniedLogs = []; const saved = mockFetch([{ ok: true, saved: true, lead_id: ID, event_id: ID }]);
+  const deniedApi = createTrackingApi({ env: LEAD_ENV, fetcher: saved.fetcher, logger: entry => deniedLogs.push(entry) });
+  assert.equal((await invoke(deniedApi.leads, version27())).status, 200);
+  assert.equal(deniedLogs[0].saved, true); assert.equal(deniedLogs[0].capi_status, 'skipped'); assert.equal(deniedLogs[0].consent_marketing, false);
+});
+test('receipt logger failure never undoes a successfully saved registration', async () => {
+  const mock = mockFetch([{ ok: true, saved: true, lead_id: ID, event_id: ID }]);
+  const api = createTrackingApi({ env: LEAD_ENV, fetcher: mock.fetcher, logger: () => { throw new Error('mock logging failure'); } });
+  const result = await invoke(api.leads, version27());
+  assert.equal(result.status, 200); assert.equal(result.body.saved, true);
 });

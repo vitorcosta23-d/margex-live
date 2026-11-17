@@ -17,11 +17,15 @@ Nome, e-mail, telefone e respostas pessoais não entram em dataLayer ou propried
 
 ## Consentimento e carregamento
 
+Revisão2.7: a primeira camada é Cookies, com Aceitar cookies (ambas as categorias), Recusar não essenciais (nenhuma) e Preferências. Categorias e Permitir selecionados ficam na segunda camada. Preferências salvas e recusas anteriores não são sobrescritas pelo novo desenho; o visitante pode reabrir no rodapé. Clicar em Preferências não concede medição por si só.
+
 As categorias analytics e marketing começam recusadas. Nenhum script Meta/GTM é carregado até escolha do visitante. Controles permitem permitir selecionados, aceitar todos ou recusar opcionais. Preferência salva localmente pode ser reaberta no rodapé. Google Consent Mode recebe default denied antes do GTM e updates conforme a escolha. Marketing habilita Meta e CAPI; analytics habilita GTM e GA4. Não há pixel noscript/iframe incondicional burlando a escolha. A existência deste controle não é certificação de adequação legal nem substitui uma política de privacidade aprovada.
 
 ## Contratos e prevenção de conversão falsa
 
-Atualização 2.6 de 17/11/2026: após autorização do usuário e teste real do root confirmando persistência e retry idempotente no relay privado, a configuração pública passa a formIsPreview:false e submissionEndpoint:'/api/leads'. Permanecem três campos de contato; perguntas de perfil aguardam validação do Andrey. Relay/chave ficam exclusivamente em variáveis privadas do servidor. Publicação e teste real pelo formulário após deploy são verificados pelo root/DevOps.
+Atualização 2.6 de 17/11/2026: após autorização do usuário e teste real do root confirmando persistência e retry idempotente no relay privado, a configuração pública passou a formIsPreview:false e submissionEndpoint:'/api/leads'. Relay/chave ficam exclusivamente em variáveis privadas do servidor.
+
+Correção 2.7 autorizada em 17/11/2026: as quatro perguntas de perfil confirmadas agora acompanham os três contatos na inscrição real, tanto modal quanto direta. São sete etapas para operações ativas, quatro para iniciante/outro canal e cinco para seller sem anúncio ativo; progresso e validação seguem apenas campos aplicáveis. Valores radio são exatamente os textos canônicos de Regras e do enum da API. Payload form_version:'2.7' envia qualification.channel/ad_count/pricing_process/main_problem, omitindo somente respostas puladas. API exige o conjunto canônico aplicável antes de persistir, sem quebrar abas antigas sem form_version. Respostas de qualificação não vão ao dataLayer/GA4 ou propriedades do Pixel. Ranking/status são calculados na planilha, não no frontend. Publicação e prova de recebimento final são verificadas pelo root/DevOps.
 
 A lógica de prévia é preservada como fallback de configuração: quando formIsPreview:true ou endpoint vazio, concluir o formulário não envia contatos, não emite Lead/generate_lead e não libera o grupo. No modo real, o ack de cadastro salvo continua obrigatório; apenas preencher os campos não é conversão.
 

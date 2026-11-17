@@ -208,23 +208,33 @@
     panel.className = 'tracking-consent';
     panel.setAttribute('aria-labelledby', 'tracking-consent-title');
     panel.hidden = preferencesSaved;
-    panel.innerHTML = '<h2 id="tracking-consent-title">Suas preferências de medição</h2><p>Escolha se permite medir visitas e interações com anúncios nesta página.</p><div class="tracking-consent-options"><label><input type="checkbox" name="analytics"> Medição de visitas · Google Analytics</label><label><input type="checkbox" name="marketing"> Medição de anúncios · Meta</label></div><div class="tracking-consent-actions"><button type="button" data-consent="selected">Permitir selecionados</button><button type="button" data-consent="all">Aceitar todos</button><button type="button" data-consent="none">Recusar opcionais</button></div>';
+    panel.innerHTML = '<h2 id="tracking-consent-title">Cookies</h2><p>Usamos cookies opcionais para medir visitas e anúncios. Você escolhe se permite.</p><div data-consent-layer="summary"><div class="tracking-consent-actions"><button type="button" data-consent="all">Aceitar cookies</button><button type="button" data-consent="none">Recusar não essenciais</button><button type="button" data-consent="preferences">Preferências</button></div></div><div data-consent-layer="details" hidden><p>Escolha quais medições deseja permitir.</p><div class="tracking-consent-options"><label><input type="checkbox" name="analytics"> Medição de visitas · Google Analytics</label><label><input type="checkbox" name="marketing"> Medição de anúncios · Meta</label></div><div class="tracking-consent-actions"><button type="button" data-consent="selected">Permitir selecionados</button><button type="button" data-consent="summary">Voltar</button></div></div>';
     document.body.append(panel);
+    function showLayer(layer, focus = true) {
+      const details = layer === 'details';
+      panel.querySelector('[data-consent-layer="summary"]').hidden = details;
+      panel.querySelector('[data-consent-layer="details"]').hidden = !details;
+      if (details) {
+        panel.querySelector('[name="analytics"]').checked = preferences.analytics;
+        panel.querySelector('[name="marketing"]').checked = preferences.marketing;
+      }
+      if (focus) panel.querySelector(details ? 'input' : '[data-consent="all"]').focus({ preventScroll: true });
+    }
     preferencesButton = document.createElement('button');
     preferencesButton.type = 'button';
     preferencesButton.className = 'tracking-preferences-button';
     preferencesButton.textContent = 'Preferências de privacidade';
     preferencesButton.addEventListener('click', () => {
-      panel.querySelector('[name="analytics"]').checked = preferences.analytics;
-      panel.querySelector('[name="marketing"]').checked = preferences.marketing;
       panel.hidden = false;
       document.body.classList.add('tracking-consent-open');
-      panel.querySelector('input').focus({ preventScroll: true });
+      showLayer('details');
     });
     (document.querySelector('.site-footer') || document.querySelector('.direct-form-footer') || document.body).append(preferencesButton);
     panel.addEventListener('click', event => {
       const action = event.target.closest('[data-consent]')?.dataset.consent;
       if (!action) return;
+      if (action === 'preferences') { showLayer('details'); return; }
+      if (action === 'summary') { showLayer('summary'); return; }
       if (action === 'selected') setConsent({ analytics: panel.querySelector('[name="analytics"]').checked, marketing: panel.querySelector('[name="marketing"]').checked });
       else setConsent({ analytics: action === 'all', marketing: action === 'all' });
     });

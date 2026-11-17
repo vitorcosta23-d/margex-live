@@ -1,5 +1,11 @@
 # MargeX Live — blueprint aprovado pelo briefing
 
+## Revisão 2.7 — quatro perguntas de perfil e cookies simples
+
+Correção autorizada em 17/11/2026: formulário real com três contatos e quatro perguntas radio (canal, anúncios ativos, processo de preços, dificuldade principal), nas rotas modal e direta. Valores de opção canônicos da aba Regras, sem abreviações, novos critérios ou pontuação no frontend. Iniciante/outro canal segue quatro etapas totais e pula operação; nenhum anúncio segue cinco etapas e pula processo/dificuldade; demais seguem sete etapas. Progresso, back, teclado, foco, seleção e validação devem acompanhar somente perguntas aplicáveis. qualification vai apenas ao endpoint privado de cadastro; não enviar respostas a analytics. Lead continua condicionado a todos os campos aplicáveis válidos e ack real de persistência, com os mesmos IDs browser/servidor.
+
+Consentimento com primeira camada simples Cookies, Aceitar cookies, Recusar não essenciais e Preferências; segunda camada contém categorias granulares e Permitir selecionados. Recusa anterior não vira aceite e scripts continuam bloqueados sem escolha apropriada. Preservar reabertura no rodapé, IDs, grupo, contador, mídia, capítulos e cálculos. Diagnóstico do servidor e atualização do status educativo na planilha pertencem aos especialistas/root; não simular eventos ou mudar regras comerciais no frontend.
+
 ## Revisão 2.6 — inscrição real habilitada
 
 Em 17/11/2026, após autorização do usuário, o root verificou cadastro técnico persistido no Apps Script e retry idempotente do mesmo UUID. Relay/chave privados configurados fora do código público. Esta revisão habilita formIsPreview:false com endpoint local /api/leads e substitui o estado de prévia das revisões anteriores. Mantêm-se três campos de contato; perguntas de perfil aguardam validação do Andrey. Sucesso, acesso ao grupo e Lead continuam condicionados ao ack de persistência saved:true/event_id correspondente, nunca ao preenchimento isolado. Atualizar somente informações visíveis de prévia/inscrições pendentes, sem mudar layout, conteúdo aprovado ou rastreamento. Publicação e cadastro real de QA pós-deploy pelo root/DevOps; não registrar deploy antes de READY.

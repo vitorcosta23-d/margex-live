@@ -1,3 +1,13 @@
+# Release2.7 — qualificação e escolha de cookies
+
+QA2.7LIBERADO. Formulário reúne3contatos+4perguntascanônicas da planilha,7etapas completas/4educativo/5semAnúncios,com form_version2.7 e validaçãoAPIcondicional; versõeslegadas semversion continuam aceitas. Cookiescomaceitar/recusar em1clique e preferênciasgranulares,semcarregarprovedoresantesconsentimento. SheetR2foicorrigida e13casosverificados,preservandoleadreal.
+
+55/55Node,testesdiretos node --test tests/*.test.cjs,build34/sintaxe/diffPASS;scan81semsegredos,41fontes59.632.520bytes,oitoassets/CSP/IDs/contadorpreservados. Rootbrowserqualificação/cookies/SDKMeta+GooglePASS comtransportesdeLeadfictíciointerceptados; nenhumLeadnovoprodução. Relatórioqa-output/qualification-browser-2.7-2026-11-17.json.
+
+A causa da ausência do Leadantigo não foi comprovada e o consentimento do usuário estavaativo. Foi confirmado o disparoSDKapós saved e adicionados recibos privadosUUID/consent/capi_status semPII, semalegarcorreçãodecausadesconhecida. Nenhumenvnovo; rootvalidarápósREADYcadastrosqualificaçãocomconsentfalse+cleanup.
+
+---
+
 # Release2.6 — publicado e verificado
 
 **PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `c3d7702d72bc527fec0e78d3f6d41bb297dbb6d6`, remoto confirmado. Deployment `dpl_3Kr2gVbJQsiRAKKpqUpF1LewKsYS`, READYproduction; URLimutável https://margex-live-4clk14aim-vitor-costa.vercel.app .
