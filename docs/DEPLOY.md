@@ -1,4 +1,10 @@
-# Release2.5 — consentimento, tags e endpoints
+# Release2.5 — publicado e verificado
+
+**PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `404dab94b200aa98fd5d545f969c50fd7400dcb1`, remoto confirmado. Deployment `dpl_EVENygeyCH8MdJzDcbKp9wNV3DZJ`, READYproduction, URLimutável https://margex-live-q2k9836tc-vitor-costa.vercel.app .
+
+Verifier públicoPASS:20arquivosfrontend/ativosHTTP200 comhashsource/dist; quatroRanges206/MIMEvideo e CSP/nosniff.16privados404 incluindo helperbackend/package/lock/.env.local/.env.example/docsAppsScript. APIevents/leadsGET405/AllowPOST/JSON; eventocomconsentimentonegadoretorna202sentfalse, sem enviarMeta. Relatório qa-output/release-verification-2.5-2026-11-17.json.
+
+QAonline2.5PASS pelo root: antes da escolha semMeta/GTM; marketing-only PixelPageView+ViewContent para1768495497553870, event_ids iguais em/api/events;390semoverflow, quatro vídeos/contador preservados, semrequestfalho/erro. CAPIPageViewreal reutilizandoevent_id retornouHTTP200oktrue/senttrue. GA4realproduction page_view+view_content paraG-V4815EHTWE ambosHTTP204, umGTM, marketingfalse/Metaausente. NenhumLead/Purchase real enviado. Relatório qa-output/tracking-online-2026-11-17.json. AtivaçãoLeadpermanecependenteURLAppsScript/exec.
 
 QA2.5LIBERADO pelo root em17/11/2026. Consentimento controla Meta/GTM; GA4 pelo container existente, sem segunda base. Eventos browser/CAPI compartilham event_id; Lead depende de persistência confirmada, sem PII no dataLayer. Formulário continua prévia sem endpoint por falta da implantaçãoAppsScript/URL privada. NenhumLeadreal foi usado no QA.
 
