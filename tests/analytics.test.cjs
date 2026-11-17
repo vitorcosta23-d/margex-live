@@ -9,6 +9,7 @@ const source = fs.readFileSync(path.join(__dirname, '..', 'analytics.js'), 'utf8
 
 function fixture(options = {}) {
   const scripts = [];
+  const connections = [];
   const requests = [];
   const listeners = {};
   const panelInputs = { analytics: { checked: false, focus() {} }, marketing: { checked: false, focus() {} } };
@@ -16,11 +17,13 @@ function fixture(options = {}) {
   const elements = [];
   const classList = { add() {}, remove() {}, toggle() {} };
   const footer = { append() {} };
+  const maskedForm = { attributes: {}, setAttribute(name, value) { this.attributes[name] = value; } };
   const document = {
     readyState: 'complete', cookie: '_fbp=fb.1.1000000000000.123456; _fbc=fb.1.1000000000000.testclick',
-    head: { append(element) { scripts.push(element); } },
+    scripts,
+    head: { append(element) { (element.tagName === 'link' ? connections : scripts).push(element); } },
     body: { append() {}, classList },
-    getElementById(id) { return scripts.find(element => element.id === id) || null; },
+    getElementById(id) { return id === 'signup-mount' ? maskedForm : scripts.concat(connections).find(element => element.id === id) || null; },
     querySelector() { return footer; },
     addEventListener(name, callback) { listeners[name] = callback; },
     createElement(tagName) {
@@ -43,6 +46,7 @@ function fixture(options = {}) {
     crypto, dataLayer: [], sessionStorage: storage(), localStorage: storage(options.stored),
     MARGEX_CONFIG: { formIsPreview: options.preview !== false, tracking: {
       metaPixelId: '1768495497553870', gtmContainerId: 'GTM-MW8RFWV5', ga4MeasurementId: 'G-V4815EHTWE',
+      clarityProjectId: options.clarity === false ? undefined : 'zf7ftfroh7',
       serverEventsEnabled: options.server === true, serverEventsEndpoint: '/api/events'
     } }
   };
@@ -51,10 +55,11 @@ function fixture(options = {}) {
     fetch(url, init) { requests.push({ url, init }); return Promise.resolve({ ok: true }); }
   });
   const panel = elements.find(element => element.tagName === 'section');
-  return { window, scripts, requests, listeners, tracking: window.MARGEX_TRACKING, panel, layers, panelInputs,
+  return { window, scripts, connections, maskedForm, requests, listeners, tracking: window.MARGEX_TRACKING, panel, layers, panelInputs,
     consentAction(action) { panel.events.click({ target: { closest() { return { dataset: { consent: action } }; } } }); },
     meta: () => Array.from(window.fbq?.queue || [], args => Array.from(args)),
-    ga: () => window.dataLayer.filter(item => item[0] === 'event').map(item => Array.from(item))
+    ga: () => window.dataLayer.filter(item => item[0] === 'event').map(item => Array.from(item)),
+    clarity: () => Array.from(window.clarity?.q || [], args => Array.from(args))
   };
 }
 const ack = () => ({ ok: true, saved: true, lead_id: 'lead_mock', event_id: crypto.randomUUID() });
@@ -75,7 +80,7 @@ test('analytics-only consent loads one GTM container and no Meta, with no duplic
   const f = fixture();
   f.tracking.setConsent({ analytics: true, marketing: false });
   f.tracking.setConsent({ analytics: true, marketing: false });
-  assert.equal(f.scripts.length, 1);
+  assert.equal(f.scripts.length, 2);
   assert.equal(f.scripts[0].src, 'https://www.googletagmanager.com/gtm.js?id=GTM-MW8RFWV5');
   assert.equal(f.meta().length, 0);
   assert.equal(f.ga().filter(item => item[1] === 'view_content').length, 1);
@@ -183,7 +188,7 @@ test('blocked storage does not break the consent controls or tracking API', () =
   const f = fixture({ blockedStorage: true });
   assert.equal(f.scripts.length, 0);
   assert.doesNotThrow(() => f.tracking.setConsent({ analytics: true, marketing: true }));
-  assert.equal(f.scripts.length, 2);
+  assert.equal(f.scripts.length, 3);
 });
 
 test('a real incoming fbclid supplies CAPI matching without exposing it to GA4 events', () => {
@@ -204,7 +209,7 @@ test('the first cookies layer accepts both categories with one clear action', ()
   f.consentAction('all');
   assert.equal(f.tracking.getConsent().analytics, true);
   assert.equal(f.tracking.getConsent().marketing, true);
-  assert.equal(f.scripts.length, 2);
+  assert.equal(f.scripts.length, 3);
   assert.equal(f.panel.hidden, true);
 });
 
@@ -219,7 +224,7 @@ test('preferences require a second deliberate choice and selected categories rem
   f.consentAction('selected');
   assert.equal(f.tracking.getConsent().analytics, true);
   assert.equal(f.tracking.getConsent().marketing, false);
-  assert.equal(f.scripts.length, 1);
+  assert.equal(f.scripts.length, 2);
 });
 
 test('an older recorded refusal is preserved when the simpler cookies UI is deployed', () => {
@@ -228,4 +233,59 @@ test('an older recorded refusal is preserved when the simpler cookies UI is depl
   assert.equal(f.scripts.length, 0);
   assert.equal(f.tracking.getConsent().analytics, false);
   assert.equal(f.tracking.getConsent().marketing, false);
+});
+
+test('Clarity waits for analytics consent, masks the form and never enables Microsoft Ads storage', () => {
+  const f = fixture();
+  assert.equal(f.clarity().length, 0); assert.equal(f.connections.length, 0);
+  f.tracking.setConsent({ analytics: false, marketing: true });
+  assert.equal(f.scripts.some(script => /clarity\.ms/.test(script.src)), false);
+  f.tracking.setConsent({ analytics: true, marketing: true });
+  f.tracking.setConsent({ analytics: true, marketing: true });
+  const tags = f.scripts.filter(script => script.src === 'https://www.clarity.ms/tag/zf7ftfroh7');
+  assert.equal(tags.length, 1); assert.equal(tags[0].async, true); assert.equal(tags[0].fetchPriority, 'low');
+  assert.equal(f.maskedForm.attributes['data-clarity-mask'], 'true');
+  const commands = f.clarity();
+  assert.ok(commands.some(command => command[0] === 'consentv2' && command[1].analytics_Storage === 'granted'));
+  assert.ok(commands.filter(command => command[0] === 'consentv2').every(command => command[1].ad_Storage === 'denied'));
+  assert.equal(commands.some(command => command[0] === 'identify'), false);
+  assert.match(f.panel.innerHTML, /Google Analytics e Microsoft Clarity/);
+});
+test('SDK preconnects and async tags are consent gated, unique and low priority', () => {
+  const f = fixture();
+  assert.equal(f.connections.length, 0);
+  f.consentAction('all'); f.consentAction('all');
+  assert.equal(f.connections.length, 3);
+  assert.equal(new Set(f.connections.map(link => link.href)).size, 3);
+  assert.ok(f.connections.every(link => link.rel === 'preconnect' && link.crossOrigin === 'anonymous'));
+  assert.ok(f.scripts.every(script => script.async === true && script.fetchPriority === 'low'));
+  assert.equal(f.scripts.length, 3);
+});
+test('Clarity is stopped on revocation and restarts without reloading another tag', () => {
+  const f = fixture();
+  f.tracking.setConsent({ analytics: true, marketing: false });
+  f.tracking.setConsent({ analytics: false, marketing: false });
+  const denied = f.clarity().find(command => command[0] === 'consentv2' && command[1].analytics_Storage === 'denied');
+  assert.ok(denied); assert.equal(denied[1].ad_Storage, 'denied');
+  assert.equal(f.clarity().filter(command => command[0] === 'stop').length, 1);
+  f.tracking.setConsent({ analytics: true, marketing: false });
+  assert.equal(f.clarity().filter(command => command[0] === 'start').length, 1);
+  assert.equal(f.scripts.filter(script => /clarity\.ms/.test(script.src)).length, 1);
+});
+test('explicit contact and secret URL parameters prevent loading the session recorder', () => {
+  for (const query of ['email=seller%40example.test', 'phone=11999999999', 'token=test-placeholder', 'utm_campaign=seller%40example.test']) {
+    const f = fixture({ url: 'https://margex-live.vercel.app/?' + query });
+    f.tracking.setConsent({ analytics: true, marketing: false });
+    assert.equal(f.scripts.some(script => /clarity\.ms/.test(script.src)), false);
+    assert.equal(f.scripts.filter(script => /googletagmanager/.test(script.src)).length, 1);
+  }
+});
+test('optional Clarity failure does not prevent confirmation of a saved registration', () => {
+  const f = fixture({ preview: false });
+  f.tracking.setConsent({ analytics: true, marketing: true });
+  f.window.clarity = () => { throw new Error('mock recorder unavailable'); };
+  assert.doesNotThrow(() => f.tracking.setConsent({ analytics: false, marketing: true }));
+  assert.doesNotThrow(() => f.tracking.setConsent({ analytics: true, marketing: true }));
+  assert.equal(f.tracking.confirmLead(ack()), true);
+  assert.equal(f.meta().filter(command => command[1] === 'Lead').length, 1);
 });

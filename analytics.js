@@ -7,7 +7,7 @@
   const consentKey = 'margex_tracking_consent_v1';
   const attributionKey = 'margex_tracking_attribution_v1';
   const confirmedKey = 'margex_confirmed_event_ids_v1';
-  const session = { metaLoaded: false, gtmLoaded: false, pageViewed: false, contentViewed: false, gaContentViewed: false };
+  const session = { metaLoaded: false, gtmLoaded: false, clarityLoaded: false, clarityStopped: false, pageViewed: false, contentViewed: false, gaContentViewed: false };
   let preferences = { analytics: false, marketing: false };
   let preferencesSaved = false;
   let panel;
@@ -97,12 +97,56 @@
     if (name !== 'Lead') serverEvent(name, id);
   }
   function loadScript(id, source) {
-    if (document.getElementById(id)) return;
+    if (document.getElementById(id) || Array.from(document.scripts || []).some(script => script.src === source)) return;
+    // Optional SDKs use low priority; connections begin only after consent.
+    const endpoint = new URL(source);
+    const connectionId = `margex-sdk-connect-${endpoint.hostname.replace(/\./g, '-')}`;
+    if (!document.getElementById(connectionId)) {
+      const connection = document.createElement('link');
+      connection.id = connectionId;
+      connection.rel = 'preconnect';
+      connection.href = endpoint.origin;
+      connection.crossOrigin = 'anonymous';
+      document.head.append(connection);
+    }
     const script = document.createElement('script');
     script.id = id;
     script.async = true;
+    script.fetchPriority = 'low';
     script.src = source;
     document.head.append(script);
+  }
+  function clarityPageSafe() {
+    for (const [key, value] of params) {
+      if (value && (/^(?:email|e-mail|phone|tel|telefone|whatsapp|name|nome|password|senha|token|access_token|secret)$/i.test(key) || /@/.test(value))) return false;
+    }
+    try { return !decodeURIComponent(location.hash || '').includes('@'); } catch { return false; }
+  }
+  function clarityCommand(...args) {
+    try { window.clarity(...args); } catch { /* An optional recorder must not break signup or consent controls. */ }
+  }
+  function loadClarity() {
+    if (!preferences.analytics || !/^[a-z0-9]{5,30}$/i.test(settings.clarityProjectId || '') || !clarityPageSafe()) return;
+    // Mask the parent before loading; this also protects fields rendered later inside it.
+    document.getElementById('signup-mount')?.setAttribute('data-clarity-mask', 'true');
+    if (typeof window.clarity !== 'function') {
+      const clarity = function() { (clarity.q = clarity.q || []).push(arguments); };
+      window.clarity = clarity;
+    }
+    if (session.clarityStopped) { clarityCommand('start'); session.clarityStopped = false; }
+    // The advertising choice names Meta. Do not also grant Microsoft Ads sharing.
+    clarityCommand('consentv2', { ad_Storage: 'denied', analytics_Storage: 'granted' });
+    if (!session.clarityLoaded) {
+      session.clarityLoaded = true;
+      loadScript('margex-microsoft-clarity', `https://www.clarity.ms/tag/${encodeURIComponent(settings.clarityProjectId)}`);
+    }
+  }
+  function stopClarity() {
+    if (!session.clarityLoaded || session.clarityStopped || typeof window.clarity !== 'function') return;
+    clarityCommand('consentv2', { ad_Storage: 'denied', analytics_Storage: 'denied' });
+    // ConsentV2 denied alone permits cookieless collection. Stop the loaded recorder too.
+    clarityCommand('stop');
+    session.clarityStopped = true;
   }
   function loadMeta() {
     if (session.metaLoaded || !preferences.marketing || !/^\d{5,30}$/.test(settings.metaPixelId || '')) return;
@@ -149,7 +193,8 @@
       ad_user_data: preferences.marketing ? 'granted' : 'denied',
       ad_personalization: preferences.marketing ? 'granted' : 'denied'
     });
-    if (preferences.analytics) { captureAttribution(); loadGtm(); }
+    if (preferences.analytics) { captureAttribution(); loadGtm(); loadClarity(); }
+    else stopClarity();
     if (preferences.marketing) { loadMeta(); }
     else if (window.fbq && session.metaLoaded) window.fbq('consent', 'revoke');
     if (preferences.marketing && session.metaLoaded) window.fbq('consent', 'grant');
@@ -208,7 +253,7 @@
     panel.className = 'tracking-consent';
     panel.setAttribute('aria-labelledby', 'tracking-consent-title');
     panel.hidden = preferencesSaved;
-    panel.innerHTML = '<h2 id="tracking-consent-title">Cookies</h2><p>Usamos cookies opcionais para medir visitas e anúncios. Você escolhe se permite.</p><div data-consent-layer="summary"><div class="tracking-consent-actions"><button type="button" data-consent="all">Aceitar cookies</button><button type="button" data-consent="none">Recusar não essenciais</button><button type="button" data-consent="preferences">Preferências</button></div></div><div data-consent-layer="details" hidden><p>Escolha quais medições deseja permitir.</p><div class="tracking-consent-options"><label><input type="checkbox" name="analytics"> Medição de visitas · Google Analytics</label><label><input type="checkbox" name="marketing"> Medição de anúncios · Meta</label></div><div class="tracking-consent-actions"><button type="button" data-consent="selected">Permitir selecionados</button><button type="button" data-consent="summary">Voltar</button></div></div>';
+    panel.innerHTML = '<h2 id="tracking-consent-title">Cookies</h2><p>Usamos cookies opcionais para medir visitas e anúncios. Você escolhe se permite.</p><div data-consent-layer="summary"><div class="tracking-consent-actions"><button type="button" data-consent="all">Aceitar cookies</button><button type="button" data-consent="none">Recusar não essenciais</button><button type="button" data-consent="preferences">Preferências</button></div></div><div data-consent-layer="details" hidden><p>Escolha quais medições deseja permitir.</p><div class="tracking-consent-options"><label><input type="checkbox" name="analytics"> Medição de visitas · Google Analytics e Microsoft Clarity</label><label><input type="checkbox" name="marketing"> Medição de anúncios · Meta</label></div><div class="tracking-consent-actions"><button type="button" data-consent="selected">Permitir selecionados</button><button type="button" data-consent="summary">Voltar</button></div></div>';
     document.body.append(panel);
     function showLayer(layer, focus = true) {
       const details = layer === 'details';

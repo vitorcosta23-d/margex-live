@@ -9,9 +9,11 @@ Implementação iniciada em 16/11/2026 e concluída/testada em 17/11/2026. IDs p
 | Carregar qualquer uma das duas rotas | PageView | page_view da base Google já existente | Consentimento da categoria; uma vez por carregamento |
 | Abrir o conteúdo da página da live | ViewContent | view_content | Somente página de vendas; conteúdo workshop gratuito, sem valor/moeda/produto da demonstração |
 | Abrir o formulário modal ou interagir no direto | — | form_open | Evento próprio para não duplicar form_start da medição avançada existente |
-| Completar uma etapa válida | — | form_step_completed | Número da etapa, total e flag de prévia; sem resposta pessoal |
+| Completar um campo válido | — | form_step_completed | Nome legado preservado: número do campo (1–7), total7 e flag de prévia; uma vez por campo, sem resposta pessoal |
 | Concluir 100% e receber confirmação de cadastro salvo | Lead | generate_lead | HTTP de sucesso e JSON ok:true, saved:true, lead_id e event_id válidos e correspondentes ao pedido |
 | Clicar no botão real do grupo após inscrição salva | WhatsAppGroupClick (personalizado) | whatsapp_group_click | Mede clique, não ingresso no grupo; sem enviar a URL de convite aos provedores |
+
+Revisões2.8/2.9: todos os sete blocos aparecem juntos e um único submit valida os aplicáveis. Qualificações não aplicáveis ficam visíveis/desabilitadas, explicadas e omitidas do payload, sem alterar contrato2.7 ou pontuação. Clarity `zf7ftfroh7` compartilha a categoria analytics; tag async única, prioridade baixa, preconnect somente após consentimento. Container signup-mount recebe data-clarity-mask antes do SDK. ConsentV2 concede apenas analytics_Storage; ad_Storage Microsoft permanece denied, pois a categoria de anúncios existente se refere à Meta. Revogação envia denied e stop, reaceite start sem duplicar tag. Não há Identify ou eventos com respostas/contatos. URLs com parâmetros explícitos de contato/segredo impedem carregar Clarity. GET do bootstrap respondeu204/semcorpo no QA: instalação foi verificada, mas gravações/coleta no painel ainda não foram comprovadas. Referência: https://learn.microsoft.com/en-gb/clarity/setup-and-installation/clarity-consent-api-v2 .
 
 Nome, e-mail, telefone e respostas pessoais não entram em dataLayer ou propriedades dos eventos de analytics. Page/source URL do contrato API é origin+pathname, sem query/hash. Origem estável: sales_page ou direct_form. UTMs reconhecidas são preservadas como rótulos de campanha sanitizados no contexto de envio ao servidor, nunca por copiar toda a URL.
 

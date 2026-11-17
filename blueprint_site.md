@@ -1,5 +1,15 @@
 # MargeX Live — blueprint aprovado pelo briefing
 
+## Revisão 2.9 — contador Black Friday com folhas ascendentes
+
+Pedido direto de 17/11/2026: cores de Black Friday no contador do topo e troca de números como calendário puxado para cima. Superfície preta, verde MargeX nos números e pequeno acento amarelo promocional na data/linha superior; sem alterar a paleta dos demais capítulos. Cada dígito alterado troca sua própria folha verticalmente em 360ms; os dígitos sem mudança permanecem imóveis. Dimensões e baseline fixas, sem deslocar o layout ou usar bibliotecas.
+
+Data preservada: 23/11/2026 às 20h de Brasília. Texto semântico do timer e data estática preservados, sem anúncio de segundos por aria-live. Reduced motion inicial/dinâmico, aba oculta e ausência de WAAPI dispensam/cancelam folhas animadas, mostrando o valor atual imediatamente. Preservar todas as mudanças paralelas do formulário completo2.8, consentimento, integração e tracking. Sem commit/publicação por este developer; root revisa o navegador.
+
+## Revisão 2.8 — formulário completo em uma tela
+
+Override explícito do usuário em 17/11/2026: substituir o percurso de etapas por todas as sete perguntas juntas, tanto no modal quanto no formulário direto. Três contatos e quatro qualificações canônicas permanecem iguais; um único botão Concluir inscrição. Não ocultar perguntas não aplicáveis: seus títulos/opções continuam visíveis, com nota de contexto e controles desabilitados sem obrigatoriedade. Omitir esses valores do payload por aplicabilidade explícita. Preservar preenchimento, retry com mesmo UUID, contrato form_version2.7 e Lead somente após ack salvo. Formulário responsivo, erros por campo e foco acessível, sem instruções de uma pergunta por vez, progresso de etapas ou botão Continuar. Conteúdo restante da página, consentimento, tracking, configuração, servidor e planilha permanecem inalterados.
+
 ## Revisão 2.7 — quatro perguntas de perfil e cookies simples
 
 Correção autorizada em 17/11/2026: formulário real com três contatos e quatro perguntas radio (canal, anúncios ativos, processo de preços, dificuldade principal), nas rotas modal e direta. Valores de opção canônicos da aba Regras, sem abreviações, novos critérios ou pontuação no frontend. Iniciante/outro canal segue quatro etapas totais e pula operação; nenhum anúncio segue cinco etapas e pula processo/dificuldade; demais seguem sete etapas. Progresso, back, teclado, foco, seleção e validação devem acompanhar somente perguntas aplicáveis. qualification vai apenas ao endpoint privado de cadastro; não enviar respostas a analytics. Lead continua condicionado a todos os campos aplicáveis válidos e ack real de persistência, com os mesmos IDs browser/servidor.

@@ -11,12 +11,64 @@
   const units = ['days', 'hours', 'minutes', 'seconds'];
   const digits = units.map(unit => banner.querySelector(`[data-countdown-unit="${unit}"]`));
   if (digits.some(element => !element)) return;
+  const motion = typeof window.matchMedia === 'function' ? window.matchMedia('(prefers-reduced-motion: reduce)') : null;
+  const activeSheets = new Map();
   let interval = null;
+
+  function settleSheet(slot) {
+    const sheet = activeSheets.get(slot);
+    if (!sheet) return;
+    sheet.animations.forEach(animation => { animation.onfinish = null; animation.cancel(); });
+    sheet.previous.remove();
+    activeSheets.delete(slot);
+  }
+
+  function settleAllSheets() {
+    Array.from(activeSheets.keys()).forEach(settleSheet);
+  }
+
+  function renderDigits(element, next) {
+    const previous = element.dataset.countdownValue;
+    if (previous === next) return;
+    if (!previous || element.children.length !== next.length) {
+      Array.from(element.children).forEach(settleSheet);
+      const slots = Array.from(next, character => {
+        const slot = document.createElement('span');
+        const value = document.createElement('span');
+        slot.className = 'countdown-digit';
+        value.className = 'countdown-digit-value';
+        value.textContent = character;
+        slot.append(value);
+        return slot;
+      });
+      element.replaceChildren(...slots);
+      element.setAttribute('aria-hidden', 'true');
+    } else {
+      Array.from(element.children).forEach((slot, index) => {
+        if (previous[index] === next[index]) return;
+        settleSheet(slot);
+        const value = slot.firstElementChild;
+        value.textContent = next[index];
+        if (!motion || motion.matches || document.hidden || typeof value.animate !== 'function') return;
+        const previousSheet = document.createElement('span');
+        previousSheet.className = 'countdown-digit-previous';
+        previousSheet.textContent = previous[index];
+        previousSheet.setAttribute('aria-hidden', 'true');
+        slot.append(previousSheet);
+        const timing = { duration: 360, easing: 'cubic-bezier(.22,1,.36,1)' };
+        const incoming = value.animate([{ transform: 'translateY(110%)', opacity: .5 }, { transform: 'translateY(0)', opacity: 1 }], timing);
+        const outgoing = previousSheet.animate([{ transform: 'translateY(0)', opacity: 1 }, { transform: 'translateY(-110%)', opacity: .2 }], timing);
+        activeSheets.set(slot, { animations: [incoming, outgoing], previous: previousSheet });
+        incoming.onfinish = () => settleSheet(slot);
+      });
+    }
+    element.dataset.countdownValue = next;
+  }
 
   function updateCountdown() {
     const remaining = Math.max(0, Math.ceil((target - Date.now()) / 1000));
     const values = [Math.floor(remaining / 86400), Math.floor(remaining / 3600) % 24, Math.floor(remaining / 60) % 60, remaining % 60];
-    digits.forEach((element, index) => { element.textContent = String(values[index]).padStart(2, '0'); });
+    digits.forEach((element, index) => { renderDigits(element, String(values[index]).padStart(2, '0')); });
     timer.setAttribute('aria-label', `${values[0]} dias, ${values[1]} horas, ${values[2]} minutos e ${values[3]} segundos para o horário da live`);
     banner.dataset.countdownReady = 'true';
     banner.dataset.countdownState = remaining === 0 ? 'started' : 'upcoming';
@@ -28,7 +80,9 @@
   }
 
   if (updateCountdown() > 0) interval = window.setInterval(updateCountdown, 1000);
-  document.addEventListener('visibilitychange', () => { if (!document.hidden) updateCountdown(); });
+  document.addEventListener('visibilitychange', () => { if (document.hidden) settleAllSheets(); else updateCountdown(); });
+  motion?.addEventListener?.('change', event => { if (event.matches) settleAllSheets(); });
+  window.addEventListener?.('pagehide', settleAllSheets);
 })();
 
 (() => {

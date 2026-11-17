@@ -11,6 +11,7 @@ window.MARGEX_CONFIG = Object.freeze({
     gtmContainerId: 'GTM-MW8RFWV5',
     // Google tag já publicado neste container; não instalar uma segunda base gtag.js.
     ga4MeasurementId: 'G-V4815EHTWE',
+    clarityProjectId: 'zf7ftfroh7',
     // Token CAPI configurado somente no servidor; nunca incluir seu valor neste arquivo.
     serverEventsEnabled: true,
     serverEventsEndpoint: '/api/events'
