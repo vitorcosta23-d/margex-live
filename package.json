@@ -1,0 +1,12 @@
+{
+  "name": "margex-live",
+  "version": "1.0.0",
+  "private": true,
+  "description": "MargeX live page and consent-aware tracking endpoints",
+  "engines": { "node": ">=22" },
+  "scripts": {
+    "build": "node build.cjs",
+    "test:api": "node --test tests/api-tracking.test.cjs tests/apps-script-relay.test.cjs"
+  },
+  "dependencies": { "zod": "4.6.7" }
+}

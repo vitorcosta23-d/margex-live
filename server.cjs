@@ -4,10 +4,11 @@ const fs = require('node:fs');
 const path = require('node:path');
 const root = __dirname;
 const port = Number(process.env.PORT || 4318);
-const publicFiles = new Set(['/index.html', '/formulario.html', '/styles.css', '/app.js', '/form.js', '/config.js', '/pricing.js', '/catalog.js']);
+const publicFiles = new Set(['/index.html', '/formulario.html', '/styles.css', '/app.js', '/analytics.js', '/form.js', '/config.js', '/pricing.js', '/catalog.js']);
 const mime = { '.html':'text/html; charset=utf-8', '.css':'text/css; charset=utf-8', '.js':'text/javascript; charset=utf-8', '.png':'image/png', '.jpg':'image/jpeg', '.jpeg':'image/jpeg', '.webp':'image/webp', '.svg':'image/svg+xml', '.ttf':'font/ttf', '.woff2':'font/woff2', '.woff':'font/woff', '.mp4':'video/mp4' };
 const assetExtensions = new Set(['.png', '.jpg', '.jpeg', '.webp', '.svg', '.ttf', '.woff2', '.woff']);
 const proofFiles = new Set([1,2,3,4].flatMap(index => ['mp4','jpg'].map(extension => `/assets/provas/depoimento-${String(index).padStart(2,'0')}.${extension}`)));
+let trackingHandlers = null;
 
 function parseRange(header,size) {
   const match = /^bytes=(\d*)-(\d*)$/.exec(header);
@@ -27,11 +28,22 @@ const server = http.createServer((request,response) => {
   response.setHeader('X-Content-Type-Options','nosniff');
   response.setHeader('Referrer-Policy','no-referrer');
   response.setHeader('Cache-Control','no-store');
-  response.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'");
-  if (!['GET','HEAD'].includes(request.method)) { response.writeHead(405,{Allow:'GET, HEAD'});response.end('Method not allowed');return; }
+  response.setHeader('Content-Security-Policy',"default-src 'self'; script-src 'self' https://connect.facebook.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.facebook.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com; media-src 'self'; font-src 'self'; connect-src 'self' https://www.facebook.com https://connect.facebook.net https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; frame-src https://www.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'");
   let pathname;
   try { pathname=decodeURIComponent(new URL(request.url,'http://127.0.0.1').pathname); }
   catch { response.writeHead(400);response.end('Bad request');return; }
+  if (pathname === '/api/events' || pathname === '/api/leads') {
+    try {
+      trackingHandlers ||= require('./server/tracking.cjs').createTrackingApi();
+      const handler = pathname === '/api/events' ? trackingHandlers.events : trackingHandlers.leads;
+      Promise.resolve(handler(request,response)).catch(() => {
+        if (!response.headersSent) { response.writeHead(500,{'Content-Type':'application/json; charset=utf-8'});response.end('{"ok":false,"code":"INTERNAL_ERROR"}'); }
+        else response.destroy();
+      });
+    } catch { response.writeHead(503,{'Content-Type':'application/json; charset=utf-8'});response.end('{"ok":false,"code":"API_UNAVAILABLE"}'); }
+    return;
+  }
+  if (!['GET','HEAD'].includes(request.method)) { response.writeHead(405,{Allow:'GET, HEAD'});response.end('Method not allowed');return; }
   if (pathname === '/') pathname='/index.html';
   const extension=path.extname(pathname).toLowerCase();
   const rootAsset=/^\/assets\/[^/]+$/.test(pathname) && assetExtensions.has(extension);

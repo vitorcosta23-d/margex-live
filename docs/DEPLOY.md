@@ -1,3 +1,13 @@
+# Release2.5 — consentimento, tags e endpoints
+
+QA2.5LIBERADO pelo root em17/11/2026. Consentimento controla Meta/GTM; GA4 pelo container existente, sem segunda base. Eventos browser/CAPI compartilham event_id; Lead depende de persistência confirmada, sem PII no dataLayer. Formulário continua prévia sem endpoint por falta da implantaçãoAppsScript/URL privada. NenhumLeadreal foi usado no QA.
+
+Testes11frontend+23backend/relay PASS; root320/390/768/1440/consentimento/mocks/deduplicação/GA4real aprovados. Build34arquivos públicos,41fontes upload59.621.605bytes. APIevents/leads são funções separadas; server/tracking.cjs/package/lock somente fonte da função, sem acesso estático. Oito ativos preservados. Scan78arquivos sem achados. CodeRabbit indisponível conforme documentação anterior.
+
+Production recebe somente nomesdocumentados: META_CAPI_ACCESS_TOKEN e MARGEX_LEADS_WEBHOOK_SECRET configurados privadamente pelo root; MARGEX_LEADS_WEBHOOK_URL pendente. Nenhuma credencial é incluída no frontend/repositório/relatórios. Relatóriofinal qa-output/release-verification-2.5-2026-11-17.json.
+
+---
+
 # Release2.4 — publicado e verificado
 
 **PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `7c100da8f0735c4c864482a4942a1e02c49c4f53` confirmado no remoto; deployment `dpl_Dtq3Y9sixHWebZTGQCUzUKdRa2Pv`, READYproduction. URLimutável https://margex-live-fmh1uwm7s-vitor-costa.vercel.app . Relatório qa-output/release-verification-2.4-2026-11-16.json PASS: frontend e oito ativos HTTP200/hashesdist+source, quatroRanges206, privados404 e CSP/nosniff preservados.

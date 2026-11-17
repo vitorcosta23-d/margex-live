@@ -10,6 +10,11 @@
   let returnFocus = null;
   let isSubmitting = false;
   let done = false;
+  let started = false;
+  let submissionEventId = null;
+  const completedSteps = new Set();
+  const tracking = window.MARGEX_TRACKING;
+  const isPreview = config.formIsPreview !== false || !config.submissionEndpoint;
 
   mount.innerHTML = `<div class="form-topline"><span class="eyebrow">LIVE GRATUITA</span>${dialog ? '<button class="icon-button form-close" type="button" aria-label="Fechar formulário">×</button>' : '<a href="/" class="form-home" aria-label="Voltar à página da live">↗</a>'}</div><div class="form-progress-meta"><span id="form-step-counter"></span><span>INSCRIÇÃO</span></div><div class="form-progress" role="progressbar" aria-label="Progresso do formulário" aria-valuemin="0" aria-valuemax="${fields.length}" aria-valuenow="0"><span></span></div><form id="signup-form" novalidate><div class="form-question"><span class="question-number" aria-hidden="true"></span><h2 id="form-title"></h2><p id="form-hint" class="form-hint"></p><label class="sr-only" id="form-label" for="form-input"></label><input id="form-input" name="name" required aria-describedby="form-hint form-error"><p id="form-error" class="form-error" aria-live="polite"></p></div><div class="form-actions"><button class="button button-back" id="form-back" type="button">← Voltar</button><button class="button button-primary" id="form-next" type="submit">Continuar <span aria-hidden="true">→</span></button></div><p class="form-preview-note">Prévia do formulário. Perguntas finais em definição.<br>Nenhum dado será enviado nesta etapa.</p></form><div id="form-result" class="form-result" hidden tabindex="-1"><span class="result-symbol" aria-hidden="true">✓</span><h2>Prévia concluída.</h2><p>A inscrição será liberada após a conexão com a planilha.</p><p class="form-hint">Seus dados não foram enviados. O convite para o grupo ficará disponível quando as inscrições forem liberadas.</p><button type="button" class="button button-quiet" id="form-review">Revisar respostas <span aria-hidden="true">↗</span></button></div>`;
   const form = mount.querySelector('form');
@@ -19,6 +24,18 @@
   const back = mount.querySelector('#form-back');
   const next = mount.querySelector('#form-next');
   const result = mount.querySelector('#form-result');
+  const groupLink = document.createElement('a');
+  groupLink.className = 'button button-primary';
+  groupLink.id = 'signup-group-link';
+  groupLink.dataset.whatsappGroup = '';
+  groupLink.target = '_blank';
+  groupLink.rel = 'noopener noreferrer';
+  groupLink.textContent = 'Entrar no grupo do WhatsApp ↗';
+  groupLink.hidden = true;
+  result.insertBefore(groupLink, mount.querySelector('#form-review'));
+  if (!isPreview) {
+    mount.querySelector('.form-preview-note').textContent = 'Confira seus dados antes de concluir a inscrição.';
+  }
 
   function render(focus = true) {
     done = false;
@@ -40,7 +57,7 @@
     input.removeAttribute('aria-invalid');
     error.textContent = '';
     back.hidden = index === 0;
-    next.innerHTML = index === fields.length - 1 ? 'Concluir prévia <span aria-hidden="true">↗</span>' : 'Continuar <span aria-hidden="true">→</span>';
+    next.innerHTML = index === fields.length - 1 ? `${isPreview ? 'Concluir prévia' : 'Concluir inscrição'} <span aria-hidden="true">↗</span>` : 'Continuar <span aria-hidden="true">→</span>';
     progress.setAttribute('aria-valuenow', String(index));
     progress.querySelector('span').style.width = `${(index / fields.length) * 100}%`;
     const question = mount.querySelector('.form-question');
@@ -68,20 +85,63 @@
     const message = validationMessage();
     if (message) { error.textContent = message; input.setAttribute('aria-invalid', 'true'); input.focus(); return; }
     answers[fields[index].name] = input.value.trim();
+    if (!started) { started = true; tracking?.formStarted(); }
+    if (!completedSteps.has(index)) {
+      completedSteps.add(index);
+      tracking?.formStepCompleted(index + 1, fields.length);
+    }
     if (index < fields.length - 1) { index++; render(); return; }
-    // Esta versão é apenas de revisão: nunca envia informações ou confirma inscrição.
-    // Um backend futuro deverá ser implementado e verificado com confirmação JSON explícita.
     isSubmitting = true;
+    if (!isPreview) {
+      try {
+        const endpoint = new URL(config.submissionEndpoint, location.origin);
+        if (endpoint.origin !== location.origin || endpoint.pathname !== '/api/leads') throw new Error('Endpoint de inscrição indisponível.');
+        submissionEventId = submissionEventId || tracking?.eventId();
+        if (!submissionEventId) throw new Error('Identificador de inscrição indisponível.');
+        const context = tracking.context();
+        const payload = {
+          name: answers.name, email: answers.email, phone: answers.phone,
+          event_id: submissionEventId, form_id: context.form_id, origin: context.origin,
+          event_source_url: context.event_source_url, consent: context.consent,
+          utm: Object.fromEntries(['utm_source','utm_medium','utm_campaign','utm_content','utm_term'].filter(key => context[key]).map(key => [key, context[key]]))
+        };
+        if (context.fbp) payload.fbp = context.fbp;
+        if (context.fbc) payload.fbc = context.fbc;
+        next.disabled = true;
+        next.textContent = 'Enviando…';
+        const response = await fetch(endpoint.href, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
+        const acknowledgement = await response.json();
+        if (!response.ok || acknowledgement?.ok !== true || acknowledgement.saved !== true || acknowledgement.event_id !== submissionEventId || typeof acknowledgement.lead_id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(acknowledgement.lead_id)) throw new Error('A inscrição não foi confirmada.');
+        // Only the persistence acknowledgement can cause the main conversion.
+        tracking.confirmLead(acknowledgement);
+        result.querySelector('h2').textContent = 'Inscrição confirmada.';
+        mount.querySelector('#form-review').hidden = true;
+        const paragraphs = result.querySelectorAll('p');
+        paragraphs[0].textContent = 'Seu cadastro foi salvo.';
+        const href = tracking.groupUrl(config.whatsappGroupUrl);
+        paragraphs[1].textContent = href ? 'Entre no grupo para acompanhar os avisos da live.' : 'As informações de acesso serão disponibilizadas pela organização.';
+        groupLink.hidden = !href;
+        if (href) groupLink.href = href;
+      } catch {
+        error.textContent = 'Não foi possível confirmar sua inscrição. Seus dados continuam preenchidos. Tente novamente.';
+        isSubmitting = false;
+        next.disabled = false;
+        next.innerHTML = 'Tentar novamente <span aria-hidden="true">↗</span>';
+        input.focus({ preventScroll: true });
+        return;
+      }
+    }
     form.hidden = true;
     result.hidden = false;
     done = true;
     progress.setAttribute('aria-valuenow', String(fields.length));
     progress.querySelector('span').style.width = '100%';
-    mount.querySelector('#form-step-counter').textContent = 'Prévia finalizada';
+    mount.querySelector('#form-step-counter').textContent = isPreview ? 'Prévia finalizada' : 'Inscrição concluída';
     result.focus({ preventScroll: true });
     isSubmitting = false;
+    next.disabled = false;
   });
-  input.addEventListener('input', () => { answers[fields[index].name] = input.value; error.textContent = ''; input.removeAttribute('aria-invalid'); });
+  input.addEventListener('input', () => { if (!started) { started = true; tracking?.formStarted(); } answers[fields[index].name] = input.value; error.textContent = ''; input.removeAttribute('aria-invalid'); });
   back.addEventListener('click', () => { answers[fields[index].name] = input.value; if (index > 0) { index--; render(); } });
   mount.querySelector('#form-review').addEventListener('click', () => { index = 0; render(); });
 
@@ -98,6 +158,7 @@
       else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first.focus(); }
     });
     document.querySelectorAll('[data-open-form]').forEach(button => button.addEventListener('click', () => {
+      if (!started) { started = true; tracking?.formStarted(); }
       returnFocus = button;
       dialog.showModal();
       document.body.classList.add('form-is-open');

@@ -1,11 +1,12 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
   "framework": null,
-  "installCommand": "",
+  "installCommand": "npm ci --ignore-scripts --no-audit --no-fund",
   "buildCommand": "node build.cjs",
   "outputDirectory": "dist",
   "cleanUrls": false,
   "trailingSlash": false,
+  "functions": { "api/*.js": { "maxDuration": 30 } },
   "headers": [
     {
       "source": "/(.*)",
@@ -13,7 +14,7 @@
         { "key": "X-Content-Type-Options", "value": "nosniff" },
         { "key": "Referrer-Policy", "value": "no-referrer" },
         { "key": "Cache-Control", "value": "public, max-age=0, must-revalidate" },
-        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; media-src 'self'; font-src 'self'; connect-src 'none'; frame-ancestors 'none'; base-uri 'self'; form-action 'none'" }
+        { "key": "Content-Security-Policy", "value": "default-src 'self'; script-src 'self' https://connect.facebook.net https://www.googletagmanager.com; style-src 'self' 'unsafe-inline'; img-src 'self' data: https://www.facebook.com https://www.google-analytics.com https://region1.google-analytics.com https://www.googletagmanager.com; media-src 'self'; font-src 'self'; connect-src 'self' https://www.facebook.com https://connect.facebook.net https://www.google-analytics.com https://region1.google-analytics.com https://analytics.google.com https://www.googletagmanager.com; frame-src https://www.googletagmanager.com; frame-ancestors 'none'; base-uri 'self'; form-action 'none'" }
       ]
     }
   ]

@@ -6,7 +6,7 @@ const root=__dirname;
 const output=path.resolve(root,'dist');
 if (path.dirname(output) !== root || path.basename(output) !== 'dist') throw new Error('Saída de build fora da pasta autorizada.');
 if (fs.existsSync(output) && fs.lstatSync(output).isSymbolicLink()) throw new Error('A saída não pode ser um link simbólico.');
-const publicFiles=['index.html','formulario.html','styles.css','config.js','form.js','pricing.js','catalog.js','app.js'];
+const publicFiles=['index.html','formulario.html','styles.css','config.js','analytics.js','form.js','pricing.js','catalog.js','app.js'];
 const assetExtensions=new Set(['.png','.jpg','.jpeg','.webp','.svg','.ttf','.woff','.woff2']);
 const assetRoot=path.join(root,'assets');
 if (fs.lstatSync(assetRoot).isSymbolicLink()) throw new Error('Assets não pode ser um link simbólico.');
