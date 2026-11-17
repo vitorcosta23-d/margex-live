@@ -1,5 +1,9 @@
 # MargeX Live — blueprint aprovado pelo briefing
 
+## Revisão 2.6 — inscrição real habilitada
+
+Em 17/11/2026, após autorização do usuário, o root verificou cadastro técnico persistido no Apps Script e retry idempotente do mesmo UUID. Relay/chave privados configurados fora do código público. Esta revisão habilita formIsPreview:false com endpoint local /api/leads e substitui o estado de prévia das revisões anteriores. Mantêm-se três campos de contato; perguntas de perfil aguardam validação do Andrey. Sucesso, acesso ao grupo e Lead continuam condicionados ao ack de persistência saved:true/event_id correspondente, nunca ao preenchimento isolado. Atualizar somente informações visíveis de prévia/inscrições pendentes, sem mudar layout, conteúdo aprovado ou rastreamento. Publicação e cadastro real de QA pós-deploy pelo root/DevOps; não registrar deploy antes de READY.
+
 ## Revisão 2.5 — rastreamento confirmado de visitas e inscrição
 
 Pedido direto de 16/11/2026: um único Meta Pixel 1768495497553870, container GTM-MW8RFWV5, PageView/ViewContent, Lead como conversão principal somente após formulário válido concluído e persistência confirmada; WhatsAppGroupClick separado no clique real do grupo. GA4 exige tag/ID de medição verificado; GTM não equivale a GA4 configurado. Deduplicação browser/servidor por mesmo nome/event_id. Nenhum token, credencial ou dado de contato em dataLayer/URLs de analytics. CSP permite apenas origens necessárias por diretiva. Esta revisão autoriza tracking externo e hooks de integração, substituindo a restrição antiga de não analytics externo, sem retirar a prévia até envio real verificado. Contador, quatro depoimentos e visuais/cálculos preservados. Contratos de backend e consentimento serão registrados após coordenação do root; não inventar status de integração, link do grupo ou inscrição bem-sucedida.

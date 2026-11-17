@@ -1,11 +1,11 @@
 'use strict';
 window.MARGEX_CONFIG = Object.freeze({
   // Somente configuração pública. Nunca inserir tokens, credenciais ou IDs sensíveis.
-  // Conexão real pendente: manter vazio até definir backend, privacidade e contrato de resposta.
-  submissionEndpoint: '',
+  // Endpoint local: relay e credenciais de persistência pertencem somente ao servidor.
+  submissionEndpoint: '/api/leads',
   whatsappGroupUrl: 'https://chat.whatsapp.com/L6za6ZsTwskIcGvqMf0G2I?s=sw&p=a&iam=2',
   privacyUrl: '',
-  formIsPreview: true,
+  formIsPreview: false,
   tracking: Object.freeze({
     metaPixelId: '1768495497553870',
     gtmContainerId: 'GTM-MW8RFWV5',

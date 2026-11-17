@@ -21,7 +21,9 @@ As categorias analytics e marketing começam recusadas. Nenhum script Meta/GTM �
 
 ## Contratos e prevenção de conversão falsa
 
-Configuração pública continua formIsPreview:true e submissionEndpoint vazio. Concluir a prévia não envia contatos, não emite Lead/generate_lead e não libera o grupo. Não trocar a flag até persistência real estar configurada e testada.
+Atualização 2.6 de 17/11/2026: após autorização do usuário e teste real do root confirmando persistência e retry idempotente no relay privado, a configuração pública passa a formIsPreview:false e submissionEndpoint:'/api/leads'. Permanecem três campos de contato; perguntas de perfil aguardam validação do Andrey. Relay/chave ficam exclusivamente em variáveis privadas do servidor. Publicação e teste real pelo formulário após deploy são verificados pelo root/DevOps.
+
+A lógica de prévia é preservada como fallback de configuração: quando formIsPreview:true ou endpoint vazio, concluir o formulário não envia contatos, não emite Lead/generate_lead e não libera o grupo. No modo real, o ack de cadastro salvo continua obrigatório; apenas preencher os campos não é conversão.
 
 O fluxo preparado POST /api/leads usa name/email/phone, event_id UUIDv4, form_id margex_live_signup, origin, event_source_url, consent, UTMs e fbp/fbc opcionais. O servidor deve confirmar persistência antes de retornar `{ok:true,saved:true,lead_id,event_id}`. Erro, ack incompleto ou event_id divergente mantém respostas e permite retry com o mesmo identificador. Na confirmação, browser e helper privado CAPI usam o mesmo nome Lead/event_id; o browser não solicita Lead no endpoint público de eventos. Revisões/ack repetido não disparam novamente o mesmo event_id.
 

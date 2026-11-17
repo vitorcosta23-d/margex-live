@@ -1,3 +1,13 @@
+# Release2.6 — ativação de inscrições reais
+
+QA2.6LIBERADO após relay real/persistência/retry idempotente confirmados pelo root. Configuração pública ativaformIsPreviewfalse e submissionEndpoint/api/leads; texto de inscrição deixa de ser prévia. Mesmo Pixel/GTM/GA4/CSP/contador/oito ativos preservados. Credenciais e URLrelay permanecem privadas no servidor.
+
+Testesdiretos node --test tests/analytics.test.cjs tests/api-tracking.test.cjs tests/apps-script-relay.test.cjs:34/34PASS. Build34arquivos, diffcheck/scan79semachados/gateativaPASS. Rootlocal: inválidozeroPOST;503semconfirmar/grupo, respostas mantidas;390semoverflow/quatroplayers/zeroerros. Relayreal9,51s+retry3,03s, registro técnico limpo preservandoK:R.
+
+EnvsProductionEncrypted: MARGEX_LEADS_WEBHOOK_URL, MARGEX_LEADS_WEBHOOK_SECRET e META_CAPI_ACCESS_TOKEN, somente nomes. Root valida cadastro técnicoprodução comanalytics/marketingfalse e limpa teste apósREADY. Nenhum Lead/Purchase de teste enviado pelo DevOps.
+
+---
+
 # Release2.5 — publicado e verificado
 
 **PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `404dab94b200aa98fd5d545f969c50fd7400dcb1`, remoto confirmado. Deployment `dpl_EVENygeyCH8MdJzDcbKp9wNV3DZJ`, READYproduction, URLimutável https://margex-live-q2k9836tc-vitor-costa.vercel.app .
