@@ -1,4 +1,12 @@
-# Release2.7 — qualificação e escolha de cookies
+# Release2.7 — publicado e verificado
+
+**PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `b57c05e7094780f7e0f47df764e214a1b14a048e`, remoto confirmado. Deployment `dpl_EpRdkAp1166EoCevArJuCiMykD1e` READYproduction; URLimutável https://margex-live-42ljhdiby-vitor-costa.vercel.app .
+
+Verifier20hashesHTTP200/4Ranges206/16privados404/API405AllowPOST,config7campos/versão2.7PASS. Relatórioqa-output/release-verification-2.7-2026-11-17.json.
+
+QAonline2.7PASS: página390seteetapas/qualificação4canônicaform_version2.7 e formulárioeducativo320quatroetapas/apenascanal retornamHTTP200savedtrue/IDigual/grupo. Retryativoduplicatetrue,consentfalse/zeroprovedores/semMetaLeadfictício,semPIIdataLayer/overflow/pageerrors. LogsVercelprivadosconfirmam3recibosúnicos(ativo, retry, educativo):type=margex_lead_receipt/form_version2.7/savedtrue/http200/capi_statusskipped/consentfalse;retryduplicate true. Somente campospermitidos consultados,semPII/segredos.
+
+SheetQAeLimpezaPASS:ativo70bruto/100/A/Pronto/comRanking;educativoTrilhaEducativa/semnota/foraRanking comF:H vazios. Após limparsomenteA:J/S:Udos2testes,UUIDszeroregistros;leadREALlinha2Incomplete preservado,8fórmulasincluindoR2novo+headersintactos. Resumode3(1A/1Edu/1Incomplete)para1Incomplete. CausadoLeadantigocontinuanãoprovada;estaentregaconfirmaSDKapóssaved e observabilidade futura.
 
 QA2.7LIBERADO. Formulário reúne3contatos+4perguntascanônicas da planilha,7etapas completas/4educativo/5semAnúncios,com form_version2.7 e validaçãoAPIcondicional; versõeslegadas semversion continuam aceitas. Cookiescomaceitar/recusar em1clique e preferênciasgranulares,semcarregarprovedoresantesconsentimento. SheetR2foicorrigida e13casosverificados,preservandoleadreal.
 
