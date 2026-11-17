@@ -1,3 +1,15 @@
+# Release2.9 — publicado e verificado (inclui formulário2.8)
+
+**PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `a58a1c041dca26365d5370a1a1db8de89d00bd52`, remoto confirmado. Deployment `dpl_8GvRRh9WzbFgizCTeZuSPcv61S7W` READYproduction; URLimutável https://margex-live-ie77tkf1u-vitor-costa.vercel.app . Não houve release2.8 separada.
+
+Formulário completo com perguntas simultâneas e umsubmit, qualificações/skips/ackpreservados; contador BlackFriday com dígitos ascendentes e movimento reduzido; imagens WebPresponsivas com carregamento adiado abaixo da dobra. Meta/GTM/GA4/consentimento/IDs/oito ativos preservados. Clarity zf7ftfroh7 instalado sujeitoàlimitação abaixo.
+
+58/58Node,build36arquivos,43fontes59.866.077bytes,scan85semsegredos. Oito casosbrowserlocaldireto/modal320/390/768/1440 e contador normal/reduced/zeroPASS. NenhumLeadfictício novo enviado. Verifier22hashesfrontend/ativosHTTP200(incluindo540/1080WebP),4Ranges206,16privados404/API405AllowPOST/CSP/nosniffPASS; oitoMP4/JPGpreservados. Relatórioqa-output/release-verification-2.9-2026-11-17.json.
+
+QAonline2.9PASS pelo root em390/1440: hero540WebP, sete campos simultâneos no modal/direto, oito dígitos do contador com data2026-11-23T20:00-03:00, semoverflow/erros e zeroMP4automático. Clarity:tagúnica/masktrue/consentanalytics-only;bootstrapMicrosoft204semcorpo também na produção. Instalação verificada; SDKdownstream/coleta/painel não comprovados. Não declararClarityativo nemprometergravações.
+
+---
+
 # Release2.7 — publicado e verificado
 
 **PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `b57c05e7094780f7e0f47df764e214a1b14a048e`, remoto confirmado. Deployment `dpl_EpRdkAp1166EoCevArJuCiMykD1e` READYproduction; URLimutável https://margex-live-42ljhdiby-vitor-costa.vercel.app .
