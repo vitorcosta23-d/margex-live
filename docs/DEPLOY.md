@@ -1,3 +1,11 @@
+# Release2.10 — formulário sequencial
+
+QA2.10LIBERADO/DOCSREADY. Perguntas voltam a aparecer uma por vez,comVoltar/avançar,respostas preservadas,quatroqualificaçõescanônicas e ackdeduplicado. Clarity/contador/WebPs/IDs/CSP/envpreservados. Nenhuma mudança no backend.
+
+60/60Node,9testesformulário,build36/sintaxe/diffPASS;scan86semsegredos/IDs/âncoras. Seiscasosbrowser320/390/1440modal/direto aprovados;LeadhookzeroantesACK/umapósmock,nenhumLeadreal. OitoativosMP4/JPG+doisWebPSHAiguais2.9nopreflight. Verificaçãopública seráfocada emform.js+smokefrontend/privados/API,semrebaixaríntegra dosvídeosinalterados.
+
+---
+
 # Release2.9 — publicado e verificado (inclui formulário2.8)
 
 **PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `a58a1c041dca26365d5370a1a1db8de89d00bd52`, remoto confirmado. Deployment `dpl_8GvRRh9WzbFgizCTeZuSPcv61S7W` READYproduction; URLimutável https://margex-live-ie77tkf1u-vitor-costa.vercel.app . Não houve release2.8 separada.

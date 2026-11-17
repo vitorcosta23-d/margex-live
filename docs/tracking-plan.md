@@ -9,7 +9,7 @@ Implementação iniciada em 16/11/2026 e concluída/testada em 17/11/2026. IDs p
 | Carregar qualquer uma das duas rotas | PageView | page_view da base Google já existente | Consentimento da categoria; uma vez por carregamento |
 | Abrir o conteúdo da página da live | ViewContent | view_content | Somente página de vendas; conteúdo workshop gratuito, sem valor/moeda/produto da demonstração |
 | Abrir o formulário modal ou interagir no direto | — | form_open | Evento próprio para não duplicar form_start da medição avançada existente |
-| Completar um campo válido | — | form_step_completed | Nome legado preservado: número do campo (1–7), total7 e flag de prévia; uma vez por campo, sem resposta pessoal |
+| Completar uma etapa válida | — | form_step_completed | Número da etapa, total aplicável (4/5/7) e flag de prévia; uma vez por campo, sem resposta pessoal |
 | Concluir 100% e receber confirmação de cadastro salvo | Lead | generate_lead | HTTP de sucesso e JSON ok:true, saved:true, lead_id e event_id válidos e correspondentes ao pedido |
 | Clicar no botão real do grupo após inscrição salva | WhatsAppGroupClick (personalizado) | whatsapp_group_click | Mede clique, não ingresso no grupo; sem enviar a URL de convite aos provedores |
 
@@ -18,6 +18,8 @@ Revisões2.8/2.9: todos os sete blocos aparecem juntos e um único submit valida
 Nome, e-mail, telefone e respostas pessoais não entram em dataLayer ou propriedades dos eventos de analytics. Page/source URL do contrato API é origin+pathname, sem query/hash. Origem estável: sales_page ou direct_form. UTMs reconhecidas são preservadas como rótulos de campanha sanitizados no contexto de envio ao servidor, nunca por copiar toda a URL.
 
 ## Consentimento e carregamento
+
+Estado atual2.10: por novo pedido explícito do usuário, o formulário voltou a apresentar uma pergunta por vez, substituindo a apresentação conjunta histórica2.8/2.9 acima. Continuar/Voltar e progresso acompanham os campos aplicáveis: quatro etapas para iniciante/outro canal, cinco sem anúncios e sete para operação ativa. Opções, contrato2.7, qualificação, pontuação e Lead somente após ack salvo permanecem iguais. Clarity, consentimento, máscara do formulário, contador e imagens otimizadas da2.9 foram preservados.
 
 Revisão2.7: a primeira camada é Cookies, com Aceitar cookies (ambas as categorias), Recusar não essenciais (nenhuma) e Preferências. Categorias e Permitir selecionados ficam na segunda camada. Preferências salvas e recusas anteriores não são sobrescritas pelo novo desenho; o visitante pode reabrir no rodapé. Clicar em Preferências não concede medição por si só.
 

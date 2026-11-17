@@ -6,22 +6,26 @@
   const dialog = document.getElementById('signup-dialog');
   const fields = config.fields;
   const answers = Object.create(null);
-  const fieldViews = new Map();
   const educationalChannels = new Set(['Somente outros canais', 'Ainda não vendo']);
-  const operationalChannels = new Set(['Mercado Livre, com ou sem Shopee', 'Shopee, sem vender no Mercado Livre']);
+  let index = 0;
   let returnFocus = null;
   let isSubmitting = false;
   let done = false;
   let started = false;
   let submissionEventId = null;
-  const completedFields = new Set();
+  const completedSteps = new Set();
   const tracking = window.MARGEX_TRACKING;
   const isPreview = config.formIsPreview !== false || !config.submissionEndpoint;
 
-  mount.innerHTML = `<div class="form-topline"><span class="eyebrow">LIVE GRATUITA</span>${dialog ? '<button class="icon-button form-close" type="button" aria-label="Fechar formulário">×</button>' : '<a href="/" class="form-home" aria-label="Voltar à página da live">↗</a>'}</div><h2 id="form-title" class="form-all-title">Inscrição na live</h2><p class="form-all-intro">Preencha seus dados e conte como funciona sua operação.</p><form id="signup-form" class="form-all-fields" novalidate><div class="form-contact-fields" id="form-contact-fields"></div><div class="form-qualification-fields" id="form-qualification-fields"></div><p id="form-error" class="form-error" aria-live="polite"></p><div class="form-actions"><button class="button button-primary" id="form-next" type="submit">${isPreview ? 'Concluir prévia' : 'Concluir inscrição'} <span aria-hidden="true">↗</span></button></div><p class="form-preview-note"></p></form><div id="form-result" class="form-result" hidden tabindex="-1"><span class="result-symbol" aria-hidden="true">✓</span><h2>Prévia concluída.</h2><p>A inscrição será liberada após a conexão com a planilha.</p><p class="form-hint">Seus dados não foram enviados. O convite para o grupo ficará disponível quando as inscrições forem liberadas.</p><button type="button" class="button button-quiet" id="form-review">Revisar respostas <span aria-hidden="true">↗</span></button></div>`;
+  mount.innerHTML = `<div class="form-topline"><span class="eyebrow">LIVE GRATUITA</span>${dialog ? '<button class="icon-button form-close" type="button" aria-label="Fechar formulário">×</button>' : '<a href="/" class="form-home" aria-label="Voltar à página da live">↗</a>'}</div><div class="form-progress-meta"><span id="form-step-counter"></span><span>INSCRIÇÃO</span></div><div class="form-progress" role="progressbar" aria-label="Progresso do formulário" aria-valuemin="0" aria-valuemax="${fields.length}" aria-valuenow="0"><span></span></div><form id="signup-form" novalidate><div class="form-question"><span class="question-number" aria-hidden="true"></span><h2 id="form-title"></h2><p id="form-hint" class="form-hint"></p><label class="sr-only" id="form-label" for="form-input"></label><input id="form-input" name="name" required aria-describedby="form-hint form-error"><fieldset id="form-choices" class="form-choice-group" role="radiogroup" aria-labelledby="form-title" aria-describedby="form-hint form-error" aria-required="true" hidden><legend class="sr-only" id="form-choice-label"></legend><div class="form-choice-options"></div></fieldset><p id="form-error" class="form-error" aria-live="polite"></p></div><div class="form-actions"><button class="button button-back" id="form-back" type="button">← Voltar</button><button class="button button-primary" id="form-next" type="submit">Continuar <span aria-hidden="true">→</span></button></div><p class="form-preview-note"></p></form><div id="form-result" class="form-result" hidden tabindex="-1"><span class="result-symbol" aria-hidden="true">✓</span><h2>Prévia concluída.</h2><p>A inscrição será liberada após a conexão com a planilha.</p><p class="form-hint">Seus dados não foram enviados. O convite para o grupo ficará disponível quando as inscrições forem liberadas.</p><button type="button" class="button button-quiet" id="form-review">Revisar respostas <span aria-hidden="true">↗</span></button></div>`;
   const form = mount.querySelector('form');
+  const input = mount.querySelector('#form-input');
+  const choices = mount.querySelector('#form-choices');
+  const choiceOptions = choices.querySelector('.form-choice-options');
   const error = mount.querySelector('#form-error');
-  const submit = mount.querySelector('#form-next');
+  const progress = mount.querySelector('.form-progress');
+  const back = mount.querySelector('#form-back');
+  const next = mount.querySelector('#form-next');
   const result = mount.querySelector('#form-result');
   const groupLink = document.createElement('a');
   groupLink.className = 'button button-primary';
@@ -34,47 +38,81 @@
   result.insertBefore(groupLink, mount.querySelector('#form-review'));
   mount.querySelector('.form-preview-note').textContent = isPreview ? 'Prévia do formulário. Nenhum dado será enviado nesta etapa.' : 'Confira seus dados antes de concluir a inscrição.';
 
-  function applicable(field) {
-    if (!field.qualificationKey || field.name === 'channel') return true;
-    if (!operationalChannels.has(answers.channel)) return false;
-    if (field.name === 'ad_count') return true;
-    return Boolean(answers.ad_count) && answers.ad_count !== 'Nenhum';
+  function activeFields() {
+    if (educationalChannels.has(answers.channel)) return fields.filter(field => !['ad_count', 'pricing_process', 'main_problem'].includes(field.name));
+    if (answers.ad_count === 'Nenhum') return fields.filter(field => !['pricing_process', 'main_problem'].includes(field.name));
+    return fields;
   }
-  function activeFields() { return fields.filter(applicable); }
-  function fieldValue(field) {
-    const view = fieldViews.get(field.name);
-    return field.type === 'radio' ? view.controls.find(control => control.checked)?.value || '' : view.controls[0].value.trim();
+  function pruneSkippedAnswers() {
+    const skipped = educationalChannels.has(answers.channel) ? ['ad_count', 'pricing_process', 'main_problem'] : answers.ad_count === 'Nenhum' ? ['pricing_process', 'main_problem'] : [];
+    skipped.forEach(name => { delete answers[name]; completedSteps.delete(name); });
   }
-  function captureAnswers() { fields.forEach(field => { answers[field.name] = fieldValue(field); }); }
-  function unavailableReason(field) {
-    if (educationalChannels.has(answers.channel)) return 'Não se aplica ao seu canal atual. Esta resposta não será enviada e você pode participar da aula.';
-    if (!answers.channel) return 'Escolha onde você vende para habilitar esta pergunta.';
-    if (field.name !== 'ad_count' && answers.ad_count === 'Nenhum') return 'Não se aplica enquanto você não tem anúncios ativos. Esta resposta não será enviada.';
-    return 'Informe a quantidade de anúncios para habilitar esta pergunta.';
+  function currentField() { return activeFields()[index]; }
+  function currentValue() { return currentField().type === 'radio' ? choices.querySelector('input:checked')?.value || '' : input.value.trim(); }
+  function captureAnswer() { answers[currentField().name] = currentValue(); pruneSkippedAnswers(); }
+  function focusControl() { (currentField().type === 'radio' ? choices.querySelector('input:checked') || choices.querySelector('input') : input)?.focus({ preventScroll: true }); }
+  function updateProgress() {
+    const total = activeFields().length;
+    mount.querySelector('.question-number').textContent = String(index + 1).padStart(2, '0');
+    mount.querySelector('#form-step-counter').textContent = `Pergunta ${index + 1} de ${total}`;
+    back.hidden = index === 0;
+    next.innerHTML = index === total - 1 ? `${isPreview ? 'Concluir prévia' : 'Concluir inscrição'} <span aria-hidden="true">↗</span>` : 'Continuar <span aria-hidden="true">→</span>';
+    progress.setAttribute('aria-valuemax', String(total));
+    progress.setAttribute('aria-valuenow', String(index));
+    progress.querySelector('span').style.width = `${(index / total) * 100}%`;
   }
-  function clearFieldError(field) {
-    const view = fieldViews.get(field.name);
-    view.error.textContent = '';
-    view.container.removeAttribute('aria-invalid');
-    view.controls.forEach(control => control.removeAttribute('aria-invalid'));
-  }
-  function updateApplicability() {
-    fields.forEach(field => {
-      const view = fieldViews.get(field.name);
-      const enabled = applicable(field);
-      view.container.dataset.applicable = String(enabled);
-      view.note.textContent = enabled ? '' : unavailableReason(field);
-      view.note.hidden = enabled;
-      if (field.type === 'radio') {
-        view.container.disabled = !enabled || isSubmitting;
-        view.container.setAttribute('aria-required', String(enabled));
-      }
-      view.controls.forEach(control => { control.disabled = !enabled || isSubmitting; control.required = enabled; });
-      if (!enabled) clearFieldError(field);
-    });
+  function render(focus = true) {
+    done = false;
+    form.hidden = false;
+    result.hidden = true;
+    const field = currentField();
+    const isChoice = field.type === 'radio';
+    mount.querySelector('#form-title').textContent = field.label;
+    mount.querySelector('#form-label').textContent = field.label;
+    mount.querySelector('#form-hint').textContent = field.hint;
+    input.hidden = isChoice;
+    input.required = !isChoice;
+    choices.hidden = !isChoice;
+    input.removeAttribute('aria-invalid');
+    choices.removeAttribute('aria-invalid');
+    if (isChoice) {
+      choices.querySelector('legend').textContent = field.label;
+      choiceOptions.replaceChildren();
+      field.options.forEach((option, optionIndex) => {
+        const label = document.createElement('label');
+        label.className = 'form-choice';
+        const control = document.createElement('input');
+        control.type = 'radio';
+        control.name = field.name;
+        control.id = `signup-choice-${field.name}-${optionIndex}`;
+        control.value = option;
+        control.required = true;
+        control.checked = answers[field.name] === option;
+        const caption = document.createElement('span');
+        caption.textContent = option;
+        label.append(control, caption);
+        choiceOptions.append(label);
+      });
+    } else {
+      input.type = field.type;
+      input.name = field.name;
+      input.autocomplete = field.autocomplete;
+      input.placeholder = field.placeholder;
+      input.maxLength = field.maxLength;
+      input.inputMode = field.type === 'tel' ? 'tel' : field.type === 'email' ? 'email' : 'text';
+      input.value = answers[field.name] || '';
+    }
+    error.textContent = '';
+    updateProgress();
+    const question = mount.querySelector('.form-question');
+    if (focus && !window.matchMedia('(prefers-reduced-motion: reduce)').matches && typeof question.animate === 'function') {
+      question.getAnimations().forEach(animation => animation.cancel());
+      question.animate([{ opacity: 0.4, transform: 'translateY(6px)' }, { opacity: 1, transform: 'translateY(0)' }], { duration: 220, easing: 'cubic-bezier(.22,1,.36,1)' });
+    }
+    if (focus) requestAnimationFrame(focusControl);
   }
   function validationMessage(field, value) {
-    if (!value) return field.type === 'radio' ? 'Escolha uma opção.' : 'Preencha este campo.';
+    if (!value) return field.type === 'radio' ? 'Escolha uma opção para continuar.' : 'Preencha este campo para continuar.';
     if (field.type === 'radio') return field.options.includes(value) ? '' : 'Escolha uma das opções disponíveis.';
     if (value.length > field.maxLength) return 'Confira o tamanho deste campo.';
     if (field.name === 'name' && value.length < 2) return 'Informe seu nome com pelo menos duas letras.';
@@ -85,129 +123,35 @@
     }
     return '';
   }
+  function showError(message) {
+    error.textContent = message;
+    (currentField().type === 'radio' ? choices : input).setAttribute('aria-invalid', 'true');
+    focusControl();
+  }
   function markStarted() { if (!started) { started = true; tracking?.formStarted(); } }
-  function markCompleted(field) {
-    if (!applicable(field) || completedFields.has(field.name) || validationMessage(field, answers[field.name] || '')) return;
-    completedFields.add(field.name);
-    tracking?.formStepCompleted(fields.indexOf(field) + 1, fields.length);
-  }
-  function showFieldError(field, message) {
-    const view = fieldViews.get(field.name);
-    view.error.textContent = message;
-    view.container.setAttribute('aria-invalid', 'true');
-    view.controls.forEach(control => control.setAttribute('aria-invalid', 'true'));
-  }
-  function focusField(field, scroll = false) {
-    const view = fieldViews.get(field.name);
-    const control = view.controls.find(item => item.checked) || view.controls[0];
-    control?.focus({ preventScroll: true });
-    if (scroll) view.container.scrollIntoView({ block: 'center', behavior: window.matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth' });
-  }
   function setSubmitting(value) {
     isSubmitting = value;
-    submit.disabled = value;
+    next.disabled = value;
+    back.disabled = value;
+    input.disabled = value;
+    choices.disabled = value;
     form.setAttribute('aria-busy', String(value));
-    updateApplicability();
   }
-
-  fields.forEach(field => {
-    const choice = field.type === 'radio';
-    const container = document.createElement(choice ? 'fieldset' : 'div');
-    container.className = choice ? 'form-field form-qualification-field' : 'form-field form-contact-field';
-    container.id = `signup-field-${field.name}`;
-    container.dataset.field = field.name;
-    const title = document.createElement(choice ? 'legend' : 'label');
-    title.className = 'form-field-label';
-    title.id = `signup-label-${field.name}`;
-    title.textContent = field.label;
-    const hint = document.createElement('p');
-    hint.className = 'form-hint';
-    hint.id = `signup-hint-${field.name}`;
-    hint.textContent = field.hint;
-    const note = document.createElement('p');
-    note.className = 'form-applicability-note';
-    note.id = `signup-note-${field.name}`;
-    note.hidden = true;
-    const fieldError = document.createElement('p');
-    fieldError.className = 'form-error';
-    fieldError.id = `signup-error-${field.name}`;
-    const controls = [];
-    container.append(title, hint);
-    if (choice) {
-      container.setAttribute('role', 'radiogroup');
-      container.setAttribute('aria-labelledby', title.id);
-      container.setAttribute('aria-describedby', `${hint.id} ${note.id} ${fieldError.id}`);
-      const options = document.createElement('div');
-      options.className = 'form-choice-options';
-      field.options.forEach((option, optionIndex) => {
-        const label = document.createElement('label');
-        label.className = 'form-choice';
-        const control = document.createElement('input');
-        control.type = 'radio';
-        control.name = field.name;
-        control.id = `signup-choice-${field.name}-${optionIndex}`;
-        control.value = option;
-        control.setAttribute('aria-describedby', `${hint.id} ${note.id} ${fieldError.id}`);
-        const caption = document.createElement('span');
-        caption.textContent = option;
-        controls.push(control);
-        label.append(control, caption);
-        options.append(label);
-      });
-      container.append(options);
-    } else {
-      const control = document.createElement('input');
-      control.type = field.type;
-      control.name = field.name;
-      control.id = `signup-input-${field.name}`;
-      control.autocomplete = field.autocomplete;
-      control.placeholder = field.placeholder;
-      control.maxLength = field.maxLength;
-      control.inputMode = field.type === 'tel' ? 'tel' : field.type === 'email' ? 'email' : 'text';
-      control.setAttribute('aria-describedby', `${hint.id} ${fieldError.id}`);
-      title.htmlFor = control.id;
-      controls.push(control);
-      container.append(control);
-    }
-    container.append(note, fieldError);
-    fieldViews.set(field.name, { container, controls, error: fieldError, note });
-    mount.querySelector(choice ? '#form-qualification-fields' : '#form-contact-fields').append(container);
-    controls.forEach(control => {
-      control.addEventListener(choice ? 'change' : 'input', () => {
-        if (isSubmitting) return;
-        markStarted();
-        answers[field.name] = fieldValue(field);
-        clearFieldError(field);
-        error.textContent = '';
-        updateApplicability();
-        if (choice) markCompleted(field);
-      });
-      if (!choice) control.addEventListener('blur', () => {
-        answers[field.name] = fieldValue(field);
-        const message = validationMessage(field, answers[field.name]);
-        if (answers[field.name] && message) showFieldError(field, message);
-        else if (!message) markCompleted(field);
-      });
-    });
-  });
-  updateApplicability();
-
   form.addEventListener('submit', async event => {
     event.preventDefault();
     if (isSubmitting) return;
-    captureAnswers();
-    updateApplicability();
-    const applicableFields = activeFields();
-    let firstInvalid;
-    fields.forEach(clearFieldError);
-    applicableFields.forEach(field => {
-      const message = validationMessage(field, answers[field.name] || '');
-      if (message) { showFieldError(field, message); if (!firstInvalid) firstInvalid = field; }
-    });
-    if (firstInvalid) { error.textContent = 'Confira os campos destacados para concluir.'; focusField(firstInvalid, true); return; }
-    error.textContent = '';
+    const field = currentField();
+    const message = validationMessage(field, currentValue());
+    if (message) { showError(message); return; }
+    captureAnswer();
     markStarted();
-    applicableFields.forEach(markCompleted);
+    if (!completedSteps.has(field.name)) {
+      completedSteps.add(field.name);
+      tracking?.formStepCompleted(index + 1, activeFields().length);
+    }
+    if (index < activeFields().length - 1) { index++; render(); return; }
+    const invalid = activeFields().findIndex(item => validationMessage(item, answers[item.name] || ''));
+    if (invalid !== -1) { index = invalid; render(); showError(validationMessage(currentField(), answers[currentField().name] || '')); return; }
     setSubmitting(true);
     if (!isPreview) {
       try {
@@ -216,7 +160,7 @@
         submissionEventId = submissionEventId || tracking?.eventId();
         if (!submissionEventId) throw new Error('Identificador de inscrição indisponível.');
         const context = tracking.context();
-        const qualification = Object.fromEntries(applicableFields.filter(field => field.qualificationKey).map(field => [field.qualificationKey, answers[field.name]]));
+        const qualification = Object.fromEntries(activeFields().filter(item => item.qualificationKey).map(item => [item.qualificationKey, answers[item.name]]));
         const payload = {
           name: answers.name, email: answers.email, phone: answers.phone,
           form_version: '2.7', event_id: submissionEventId, form_id: context.form_id, origin: context.origin,
@@ -225,7 +169,7 @@
         };
         if (context.fbp) payload.fbp = context.fbp;
         if (context.fbc) payload.fbc = context.fbc;
-        submit.textContent = 'Enviando…';
+        next.textContent = 'Enviando…';
         const response = await fetch(endpoint.href, { method: 'POST', credentials: 'same-origin', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(payload) });
         const acknowledgement = await response.json();
         if (!response.ok || acknowledgement?.ok !== true || acknowledgement.saved !== true || acknowledgement.event_id !== submissionEventId || typeof acknowledgement.lead_id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(acknowledgement.lead_id)) throw new Error('A inscrição não foi confirmada.');
@@ -241,20 +185,26 @@
       } catch {
         setSubmitting(false);
         error.textContent = 'Não foi possível confirmar sua inscrição. Seus dados continuam preenchidos. Tente novamente.';
-        submit.innerHTML = 'Tentar novamente <span aria-hidden="true">↗</span>';
-        submit.focus({ preventScroll: true });
+        next.innerHTML = 'Tentar novamente <span aria-hidden="true">↗</span>';
+        focusControl();
         return;
       }
     }
     form.hidden = true;
     result.hidden = false;
     done = true;
+    progress.setAttribute('aria-valuenow', String(activeFields().length));
+    progress.querySelector('span').style.width = '100%';
+    mount.querySelector('#form-step-counter').textContent = isPreview ? 'Prévia finalizada' : 'Inscrição concluída';
     result.focus({ preventScroll: true });
     setSubmitting(false);
   });
-  mount.querySelector('#form-review').addEventListener('click', () => { done = false; form.hidden = false; result.hidden = true; focusField(fields[0], true); });
+  input.addEventListener('input', () => { markStarted(); answers[currentField().name] = input.value; error.textContent = ''; input.removeAttribute('aria-invalid'); });
+  choices.addEventListener('change', () => { markStarted(); captureAnswer(); error.textContent = ''; choices.removeAttribute('aria-invalid'); updateProgress(); });
+  back.addEventListener('click', () => { if (isSubmitting) return; captureAnswer(); if (index > 0) { index--; render(); } });
+  mount.querySelector('#form-review').addEventListener('click', () => { index = 0; render(); });
 
-  function close() { if (dialog?.open) { dialog.close(); document.body.classList.remove('form-is-open'); returnFocus?.focus({ preventScroll: true }); } }
+  function close() { if (dialog?.open) { if (!done && !isSubmitting) captureAnswer(); dialog.close(); document.body.classList.remove('form-is-open'); returnFocus?.focus({ preventScroll: true }); } }
   if (dialog) {
     mount.querySelector('.form-close').addEventListener('click', close);
     dialog.addEventListener('cancel', event => { event.preventDefault(); close(); });
@@ -271,7 +221,8 @@
       returnFocus = button;
       dialog.showModal();
       document.body.classList.add('form-is-open');
-      if (done) result.focus(); else focusField(fields[0]);
+      if (done) result.focus(); else render();
     }));
   }
+  render(!dialog);
 })();

@@ -1,5 +1,9 @@
 # MargeX Live — blueprint aprovado pelo briefing
 
+## Revisão 2.10 — retorno às perguntas uma de cada vez
+
+Novo pedido explícito do usuário em 17/11/2026: “as perguntas coloca uma de cada vez”. Este override substitui a apresentação conjunta2.8 e restaura o formulário sequencial da2.7 nas duas rotas, com Voltar, foco e progresso. Permanecem três contatos e quatro qualificações canônicas, percursos aplicáveis4/5/7, contrato form_version2.7, validação, respostas/UUID de retry e Lead somente após ack salvo. Preservar integralmente as melhorias2.9: Clarity e máscara no signup-mount, consentimento/CSP, imagens responsivas, contador Black Friday e demais capítulos. Alteração focada em form.js/testes; sem restauração de config/analytics/app/index ou backend. QA e publicação pelo root/DevOps.
+
 ## Revisão 2.9 — contador Black Friday com folhas ascendentes
 
 Pedido direto de 17/11/2026: cores de Black Friday no contador do topo e troca de números como calendário puxado para cima. Superfície preta, verde MargeX nos números e pequeno acento amarelo promocional na data/linha superior; sem alterar a paleta dos demais capítulos. Cada dígito alterado troca sua própria folha verticalmente em 360ms; os dígitos sem mudança permanecem imóveis. Dimensões e baseline fixas, sem deslocar o layout ou usar bibliotecas.
