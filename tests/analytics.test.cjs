@@ -44,6 +44,7 @@ function fixture(options = {}) {
   const location = new URL(options.url || 'https://margex-live.vercel.app/');
   const window = {
     crypto, dataLayer: [], sessionStorage: storage(), localStorage: storage(options.stored),
+    MARGEX_SIGNUP_DRAFT: options.handoff ? { read: () => options.handoff } : undefined,
     MARGEX_CONFIG: { formIsPreview: options.preview !== false, tracking: {
       metaPixelId: '1768495497553870', gtmContainerId: 'GTM-MW8RFWV5', ga4MeasurementId: 'G-V4815EHTWE',
       clarityProjectId: options.clarity === false ? undefined : 'zf7ftfroh7',
@@ -288,4 +289,58 @@ test('optional Clarity failure does not prevent confirmation of a saved registra
   assert.doesNotThrow(() => f.tracking.setConsent({ analytics: true, marketing: true }));
   assert.equal(f.tracking.confirmLead(ack()), true);
   assert.equal(f.meta().filter(command => command[1] === 'Lead').length, 1);
+});
+
+test('FormOpen is one custom Pixel event with the same UUID forwarded to CAPI and no premature Lead', () => {
+  const f = fixture({ server: true, preview: false });
+  f.tracking.setConsent({ analytics: true, marketing: true });
+  f.tracking.formStarted(); f.tracking.formStarted();
+  const opens = f.meta().filter(command => command[1] === 'FormOpen');
+  assert.equal(opens.length, 1); assert.equal(opens[0][0], 'trackCustom');
+  const forwarded = f.requests.map(request => JSON.parse(request.init.body)).filter(body => body.event_name === 'FormOpen');
+  assert.equal(forwarded.length, 1); assert.equal(forwarded[0].event_id, opens[0][3].eventID);
+  assert.equal(forwarded[0].origin, 'sales_page');
+  assert.equal(f.ga().filter(command => command[1] === 'form_open').length, 1);
+  assert.equal(f.meta().some(command => command[1] === 'Lead'), false);
+  assert.equal(Object.hasOwn(opens[0][2], 'value'), false);
+});
+
+test('an opening before consent is not replayed; a later real action can send each eligible channel once', () => {
+  const f = fixture({ server: true });
+  f.tracking.formStarted();
+  assert.equal(f.meta().some(command => command[1] === 'FormOpen'), false);
+  assert.equal(f.ga().some(command => command[1] === 'form_open'), false);
+  f.tracking.setConsent({ analytics: true, marketing: false });
+  assert.equal(f.ga().some(command => command[1] === 'form_open'), false);
+  f.tracking.formStarted();
+  assert.equal(f.ga().filter(command => command[1] === 'form_open').length, 1);
+  assert.equal(f.meta().some(command => command[1] === 'FormOpen'), false);
+  f.tracking.setConsent({ analytics: true, marketing: true });
+  assert.equal(f.meta().some(command => command[1] === 'FormOpen'), false);
+  f.tracking.formStarted(); f.tracking.formStarted();
+  assert.equal(f.meta().filter(command => command[1] === 'FormOpen').length, 1);
+  assert.equal(f.ga().filter(command => command[1] === 'form_open').length, 1);
+  f.tracking.setConsent({ analytics: false, marketing: false }); f.tracking.formStarted();
+  f.tracking.setConsent({ analytics: true, marketing: true }); f.tracking.formStarted();
+  assert.equal(f.meta().filter(command => command[1] === 'FormOpen').length, 1);
+});
+
+test('quick landing loads one Pixel and exposes no draft contacts to tracking properties', () => {
+  const f = fixture({ url: 'https://margex-live.vercel.app/inscricao.html', server: true, handoff: { email: 'private@example.invalid', phone: '11987654321', campaign: { utm_source: 'meta' } } });
+  f.tracking.setConsent({ analytics: true, marketing: true }); f.tracking.formStarted();
+  assert.equal(f.scripts.filter(script => /fbevents/.test(script.src)).length, 1);
+  assert.equal(f.tracking.context().origin, 'sales_page');
+  assert.equal(f.meta().filter(command => command[1] === 'FormOpen').length, 1);
+  const serialized = JSON.stringify(f.window.dataLayer) + JSON.stringify(f.meta()) + JSON.stringify(f.requests);
+  assert.equal(serialized.includes('private@example.invalid'), false);
+  assert.equal(serialized.includes('11987654321'), false);
+});
+
+test('handoff preserves safe campaign labels in the destination without exposing contacts', () => {
+  const f = fixture({ url: 'https://margex-live.vercel.app/formulario.html?utm_content=new_creative', handoff: { email: 'private@example.invalid', phone: '11987654321', campaign: { utm_source: 'meta', utm_campaign: 'black_live', utm_content: 'old_creative', utm_term: 'bad@example.invalid' } } });
+  f.tracking.setConsent({ analytics: true, marketing: true }); f.tracking.formStarted();
+  const data = f.tracking.context();
+  assert.equal(data.utm_source, 'meta'); assert.equal(data.utm_campaign, 'black_live');
+  assert.equal(data.utm_content, 'new_creative'); assert.equal(data.utm_term, '');
+  assert.equal(JSON.stringify(f.window.dataLayer).includes('private@example.invalid'), false);
 });

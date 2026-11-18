@@ -6,12 +6,16 @@
   const dialog = document.getElementById('signup-dialog');
   const fields = config.fields;
   const answers = Object.create(null);
+  const draft = window.MARGEX_SIGNUP_DRAFT;
+  const handoff = !dialog ? draft?.read() : null;
+  if (handoff) { answers.email = handoff.email; answers.phone = handoff.phone; }
+  let skipContactDetails = Boolean(handoff);
+  let contactEditResume = null;
   const educationalChannels = new Set(['Somente outros canais', 'Ainda não vendo']);
   let index = 0;
   let returnFocus = null;
   let isSubmitting = false;
   let done = false;
-  let started = false;
   let submissionEventId = null;
   const completedSteps = new Set();
   const tracking = window.MARGEX_TRACKING;
@@ -27,6 +31,32 @@
   const back = mount.querySelector('#form-back');
   const next = mount.querySelector('#form-next');
   const result = mount.querySelector('#form-result');
+  let contactSummary;
+  let editContacts;
+  if (handoff) {
+    contactSummary = document.createElement('div');
+    contactSummary.id = 'form-contact-summary';
+    contactSummary.className = 'form-contact-summary';
+    const message = document.createElement('p');
+    message.textContent = 'Seu e-mail e WhatsApp já estão preenchidos. Agora, complete seu perfil.';
+    editContacts = document.createElement('button');
+    editContacts.type = 'button';
+    editContacts.id = 'form-edit-contacts';
+    editContacts.className = 'button button-quiet';
+    editContacts.textContent = 'Alterar e-mail ou WhatsApp';
+    contactSummary.append(message, editContacts);
+    mount.insertBefore(contactSummary, progress);
+    editContacts.addEventListener('click', () => {
+      if (isSubmitting || contactEditResume) return;
+      captureAnswer();
+      contactEditResume = currentField().name;
+      skipContactDetails = false;
+      editContacts.disabled = true;
+      index = activeFields().findIndex(field => field.name === 'email');
+      markStarted();
+      render();
+    });
+  }
   const groupLink = document.createElement('a');
   groupLink.className = 'button button-primary';
   groupLink.id = 'signup-group-link';
@@ -38,11 +68,12 @@
   result.insertBefore(groupLink, mount.querySelector('#form-review'));
   mount.querySelector('.form-preview-note').textContent = isPreview ? 'Prévia do formulário. Nenhum dado será enviado nesta etapa.' : 'Confira seus dados antes de concluir a inscrição.';
 
-  function activeFields() {
+  function allApplicableFields() {
     if (educationalChannels.has(answers.channel)) return fields.filter(field => !['ad_count', 'pricing_process', 'main_problem'].includes(field.name));
     if (answers.ad_count === 'Nenhum') return fields.filter(field => !['pricing_process', 'main_problem'].includes(field.name));
     return fields;
   }
+  function activeFields() { return allApplicableFields().filter(field => !skipContactDetails || !['email', 'phone'].includes(field.name)); }
   function pruneSkippedAnswers() {
     const skipped = educationalChannels.has(answers.channel) ? ['ad_count', 'pricing_process', 'main_problem'] : answers.ad_count === 'Nenhum' ? ['pricing_process', 'main_problem'] : [];
     skipped.forEach(name => { delete answers[name]; completedSteps.delete(name); });
@@ -116,7 +147,7 @@
     if (field.type === 'radio') return field.options.includes(value) ? '' : 'Escolha uma das opções disponíveis.';
     if (value.length > field.maxLength) return 'Confira o tamanho deste campo.';
     if (field.name === 'name' && value.length < 2) return 'Informe seu nome com pelo menos duas letras.';
-    if (field.type === 'email' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value)) return 'Confira seu e-mail. Exemplo: voce@exemplo.com.';
+    if (field.type === 'email' && (/[\u0000-\u001f\u007f]/.test(value) || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(value))) return 'Confira seu e-mail. Exemplo: voce@exemplo.com.';
     if (field.type === 'tel') {
       const digits = value.replace(/\D/g, '');
       if (!/^[+\d\s().-]+$/.test(value) || digits.length < 10 || digits.length > 13) return 'Informe um WhatsApp válido com DDD.';
@@ -128,13 +159,14 @@
     (currentField().type === 'radio' ? choices : input).setAttribute('aria-invalid', 'true');
     focusControl();
   }
-  function markStarted() { if (!started) { started = true; tracking?.formStarted(); } }
+  function markStarted() { tracking?.formStarted(); }
   function setSubmitting(value) {
     isSubmitting = value;
     next.disabled = value;
     back.disabled = value;
     input.disabled = value;
     choices.disabled = value;
+    if (editContacts) editContacts.disabled = value || Boolean(contactEditResume);
     form.setAttribute('aria-busy', String(value));
   }
   form.addEventListener('submit', async event => {
@@ -149,9 +181,23 @@
       completedSteps.add(field.name);
       tracking?.formStepCompleted(index + 1, activeFields().length);
     }
+    if (contactEditResume && field.name === 'phone') {
+      if (!draft?.write({ email: answers.email, phone: answers.phone, campaign: handoff.campaign })) draft?.clear();
+      const resume = contactEditResume;
+      contactEditResume = null;
+      skipContactDetails = true;
+      editContacts.disabled = false;
+      index = Math.max(0, activeFields().findIndex(item => item.name === resume));
+      render();
+      return;
+    }
     if (index < activeFields().length - 1) { index++; render(); return; }
-    const invalid = activeFields().findIndex(item => validationMessage(item, answers[item.name] || ''));
-    if (invalid !== -1) { index = invalid; render(); showError(validationMessage(currentField(), answers[currentField().name] || '')); return; }
+    const invalidField = allApplicableFields().find(item => validationMessage(item, answers[item.name] || ''));
+    if (invalidField) {
+      if (['email', 'phone'].includes(invalidField.name)) skipContactDetails = false;
+      index = activeFields().findIndex(item => item.name === invalidField.name);
+      render(); showError(validationMessage(currentField(), answers[currentField().name] || '')); return;
+    }
     setSubmitting(true);
     if (!isPreview) {
       try {
@@ -174,6 +220,8 @@
         const acknowledgement = await response.json();
         if (!response.ok || acknowledgement?.ok !== true || acknowledgement.saved !== true || acknowledgement.event_id !== submissionEventId || typeof acknowledgement.lead_id !== 'string' || !/^[A-Za-z0-9_-]{1,128}$/.test(acknowledgement.lead_id)) throw new Error('A inscrição não foi confirmada.');
         tracking.confirmLead(acknowledgement);
+        draft?.clear();
+        if (contactSummary) contactSummary.hidden = true;
         result.querySelector('h2').textContent = 'Inscrição confirmada.';
         mount.querySelector('#form-review').hidden = true;
         const paragraphs = result.querySelectorAll('p');

@@ -6,7 +6,7 @@ const { z } = require('zod');
 const PIXEL_ID = '1768495497553870';
 const FORM_ID = 'margex_live_signup';
 const MAX_BODY_BYTES = 16384;
-const PAGE_PATHS = new Set(['/', '/index.html', '/formulario.html']);
+const PAGE_PATHS = new Set(['/', '/index.html', '/formulario.html', '/inscricao.html']);
 const consentSchema = z.object({ analytics: z.boolean(), marketing: z.boolean() }).strict();
 // Versioned labels match the existing Sheet Regras. Weight edits remain in Sheets.
 const qualificationChoices = Object.freeze({
@@ -27,7 +27,7 @@ const baseShape = {
 };
 const eventSchema = z.object({
   ...baseShape,
-  event_name: z.enum(['PageView', 'ViewContent', 'WhatsAppGroupClick'])
+  event_name: z.enum(['PageView', 'ViewContent', 'WhatsAppGroupClick', 'FormOpen'])
 }).strict();
 const safeText = (max) => z.string().trim().min(1).max(max).refine(value => !/[\u0000-\u001f\u007f]/u.test(value));
 const leadSchema = z.object({

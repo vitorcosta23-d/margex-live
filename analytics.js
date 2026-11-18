@@ -7,7 +7,7 @@
   const consentKey = 'margex_tracking_consent_v1';
   const attributionKey = 'margex_tracking_attribution_v1';
   const confirmedKey = 'margex_confirmed_event_ids_v1';
-  const session = { metaLoaded: false, gtmLoaded: false, clarityLoaded: false, clarityStopped: false, pageViewed: false, contentViewed: false, gaContentViewed: false };
+  const session = { metaLoaded: false, gtmLoaded: false, clarityLoaded: false, clarityStopped: false, pageViewed: false, contentViewed: false, gaContentViewed: false, gaFormOpened: false, metaFormOpened: false };
   let preferences = { analytics: false, marketing: false };
   let preferencesSaved = false;
   let panel;
@@ -44,7 +44,8 @@
   const params = new URLSearchParams(location.search);
   const clickedId = params.get('fbclid') || '';
   const clickedFbc = /^[A-Za-z0-9._-]{1,200}$/.test(clickedId) ? `fb.1.${Date.now()}.${clickedId}` : undefined;
-  const queryCampaign = Object.fromEntries(campaignKeys.map(key => [key, campaignValue(params.get(key) || '')]));
+  const handoffCampaign = location.pathname === '/formulario.html' ? window.MARGEX_SIGNUP_DRAFT?.read()?.campaign : null;
+  const queryCampaign = Object.fromEntries(campaignKeys.map(key => [key, campaignValue(params.has(key) ? params.get(key) : handoffCampaign?.[key] || '')]));
   let attribution = { origin, ...queryCampaign };
   function captureAttribution() {
     const stored = readStored(storage('sessionStorage'), attributionKey);
@@ -214,7 +215,15 @@
   }
   function formStarted() {
     // The existing Google tag already emits enhanced-measurement form_start.
-    ga4('form_open', { form_is_preview: window.MARGEX_CONFIG.formIsPreview === true });
+    // Eligibility is evaluated on each real interaction, never replayed on consent changes.
+    if (preferences.analytics && !session.gaFormOpened) {
+      ga4('form_open', { form_is_preview: window.MARGEX_CONFIG.formIsPreview === true });
+      session.gaFormOpened = true;
+    }
+    if (preferences.marketing && session.metaLoaded && !session.metaFormOpened) {
+      const id = eventId();
+      if (validEventId(id)) { meta('FormOpen', id, true); session.metaFormOpened = true; }
+    }
   }
   function formStepCompleted(step, total) {
     if (!Number.isInteger(step) || !Number.isInteger(total) || step < 1 || step > total || total > 50) return;

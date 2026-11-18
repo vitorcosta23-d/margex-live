@@ -6,10 +6,10 @@ Implementação iniciada em 16/11/2026 e concluída/testada em 17/11/2026. IDs p
 
 | Ação real | Meta | GA4 | Condição |
 | --- | --- | --- | --- |
-| Carregar qualquer uma das duas rotas | PageView | page_view da base Google já existente | Consentimento da categoria; uma vez por carregamento |
-| Abrir o conteúdo da página da live | ViewContent | view_content | Somente página de vendas; conteúdo workshop gratuito, sem valor/moeda/produto da demonstração |
-| Abrir o formulário modal ou interagir no direto | — | form_open | Evento próprio para não duplicar form_start da medição avançada existente |
-| Completar uma etapa válida | — | form_step_completed | Número da etapa, total aplicável (4/5/7) e flag de prévia; uma vez por campo, sem resposta pessoal |
+| Carregar qualquer uma das três rotas | PageView | page_view da base Google já existente | Consentimento da categoria; uma vez por carregamento |
+| Abrir o conteúdo da página da live | ViewContent | view_content | Página de vendas completa ou rápida; conteúdo workshop gratuito, sem valor/moeda/produto da demonstração |
+| Abrir o formulário modal ou interagir no direto/rápido | FormOpen (personalizado) | form_open | Uma vez por carregamento por canal consentido; Pixel trackCustom e CAPI usam o mesmo UUID. Não conta Lead. |
+| Completar uma etapa válida | — | form_step_completed | Número da etapa e total aplicável:4/5/7 no percurso completo ou2/3/5 após contatos rápidos válidos; uma vez por campo, sem resposta pessoal |
 | Concluir 100% e receber confirmação de cadastro salvo | Lead | generate_lead | HTTP de sucesso e JSON ok:true, saved:true, lead_id e event_id válidos e correspondentes ao pedido |
 | Clicar no botão real do grupo após inscrição salva | WhatsAppGroupClick (personalizado) | whatsapp_group_click | Mede clique, não ingresso no grupo; sem enviar a URL de convite aos provedores |
 
@@ -18,6 +18,12 @@ Revisões2.8/2.9: todos os sete blocos aparecem juntos e um único submit valida
 Nome, e-mail, telefone e respostas pessoais não entram em dataLayer ou propriedades dos eventos de analytics. Page/source URL do contrato API é origin+pathname, sem query/hash. Origem estável: sales_page ou direct_form. UTMs reconhecidas são preservadas como rótulos de campanha sanitizados no contexto de envio ao servidor, nunca por copiar toda a URL.
 
 ## Consentimento e carregamento
+
+Atribuição2.11: FormOpen na página rápida usa sales_page e source_url/inscricao.html; o cadastro final usa direct_form e source_url/formulario.html. Campanhas UTMs originais são preservadas. Não existe marcador exclusivo quick_signup na planilha sem uma campanha identificável: esse nome fica apenas no draft funcional temporário, sem ampliar enum/schema/AppScript. Não inventar UTMs para suprir essa distinção. FormOpen em duas páginas representa duas ações/carregamentos distintos; a deduplicação Pixel/CAPI ocorre por UUID em cada ação.
+
+Revisão2.11: /inscricao.html apresenta resumo e dois contatos iniciais; usa o mesmo Pixel/GTM/Clarity e consentimentos existentes. Ao enviar contatos válidos, guarda draft funcional apenas em sessionStorage (margex_signup_draft_v1, TTL30min), preserva UTMs sanitizadas e navega sem contatos em URL. Não chama /api/leads nem dispara Lead nessa etapa; FormOpen poderá usar /api/events sem contatos, conforme consentimento. No destino, /formulario.html carrega signup-draft.js antes de analytics/form para receber campanhas e pré-preencher e-mail/telefone. Esses contatos são pulados na sequência, mas revalidados antes do POST completo. Nome e perfil continuam uma pergunta por vez; Alterar e-mail ou WhatsApp retorna à pergunta anterior preservando respostas. Draft só é limpo após ack válido de persistência, expiração ou detecção de dados inválidos. Storage bloqueado mostra alternativa do formulário completo, sem navegar com contatos perdidos.
+
+FormOpen não é retroativo: uma abertura sem consentimento não é enviada ao concedê-lo. Uma nova abertura/interação elegível poderá emitir o evento, pois as flags independentes GA4/Meta só são consumidas quando o canal está permitido. Reabrir/editar/responder outras perguntas não cria novas aberturas no mesmo carregamento. O handoff entre páginas produz carregamentos distintos, cada qual com sua origem existente sales_page ou direct_form. Não alterar o significado de Lead/generate_lead ou duplicar a base Pixel.
 
 Estado atual2.10: por novo pedido explícito do usuário, o formulário voltou a apresentar uma pergunta por vez, substituindo a apresentação conjunta histórica2.8/2.9 acima. Continuar/Voltar e progresso acompanham os campos aplicáveis: quatro etapas para iniciante/outro canal, cinco sem anúncios e sete para operação ativa. Opções, contrato2.7, qualificação, pontuação e Lead somente após ack salvo permanecem iguais. Clarity, consentimento, máscara do formulário, contador e imagens otimizadas da2.9 foram preservados.
 

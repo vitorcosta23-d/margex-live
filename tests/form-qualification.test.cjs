@@ -60,7 +60,8 @@ function fixture(options = {}) {
     confirmLead: acknowledgement => events.push({ type: 'lead', event_id: acknowledgement.event_id }),
     groupUrl: value => value
   };
-  const window = { MARGEX_TRACKING: tracking, matchMedia: () => ({ matches: true }) };
+  const draftCalls = [];
+  const window = { MARGEX_TRACKING: tracking, matchMedia: () => ({ matches: true }), MARGEX_SIGNUP_DRAFT: options.draft ? { read: () => options.draft, write: value => { draftCalls.push({ type: 'write', value }); return true; }, clear: () => draftCalls.push({ type: 'clear' }) } : undefined };
   const sandbox = { window, document, URL, Set, location: new URL('https://margex-live.vercel.app/formulario.html'), requestAnimationFrame: callback => callback(),
     fetch: async (url, init) => {
       const payload = JSON.parse(init.body);
@@ -85,7 +86,7 @@ function fixture(options = {}) {
     await nodes.form.emit('submit');
   }
   async function contacts() { for (const value of ['Seller QA', 'qa@example.com', '(11) 99999-9999']) await answer(value); }
-  return { nodes, window, events, requests, radios, answer, contacts, select, submit: () => nodes.form.emit('submit'), back: () => nodes['#form-back'].emit('click'), group: () => result.children.find(node => node.id === 'signup-group-link') };
+  return { nodes, window, events, requests, radios, answer, contacts, select, draftCalls, editContacts: () => mount.children.find(node => node.id === 'form-contact-summary').children.find(node => node.id === 'form-edit-contacts').emit('click'), submit: () => nodes.form.emit('submit'), back: () => nodes['#form-back'].emit('click'), group: () => result.children.find(node => node.id === 'signup-group-link') };
 }
 
 test('active operations must complete all four canonical qualifications before a single saved Lead', async () => {
@@ -201,4 +202,51 @@ test('frontend qualification values match the server canonical choices exactly',
   const f = fixture();
   assert.deepEqual(Array.from(f.window.MARGEX_CONFIG.fields, field => field.name), ['name','email','phone','channel','ad_count','pricing_process','main_problem']);
   for (const field of f.window.MARGEX_CONFIG.fields.filter(item => item.qualificationKey)) assert.deepEqual(Array.from(field.options), qualificationChoices[field.qualificationKey]);
+});
+
+test('quick handoff skips contact questions but submits every validated contact and clears only after saved acknowledgement', async () => {
+  const f = fixture({ draft: { email: 'handoff@example.invalid', phone: '11999999999', campaign: {} } });
+  await f.answer('Seller QA');
+  assert.equal(f.nodes['#form-step-counter'].textContent, 'Pergunta 2 de 5');
+  assert.equal(f.requests.length, 0);
+  await f.answer('Mercado Livre, com ou sem Shopee'); await f.answer('501 ou mais');
+  await f.answer('Com planilha e alterações manuais nos anúncios');
+  assert.equal(f.draftCalls.length, 0);
+  await f.answer('Falta tempo para revisar custos, preços e promoções');
+  assert.equal(f.requests.length, 1);
+  assert.equal(f.requests[0].payload.email, 'handoff@example.invalid');
+  assert.equal(f.requests[0].payload.phone, '11999999999');
+  assert.equal(f.requests[0].payload.name, 'Seller QA');
+  assert.equal(f.draftCalls.filter(call => call.type === 'clear').length, 1);
+});
+
+test('editing quick contacts returns to the previous profile question without losing its answer', async () => {
+  const f = fixture({ draft: { email: 'handoff@example.invalid', phone: '11999999999', campaign: {} } });
+  await f.answer('Seller QA'); await f.select('Mercado Livre, com ou sem Shopee');
+  await f.editContacts();
+  assert.equal(f.nodes['#form-input'].name, 'email');
+  await f.answer('updated@example.invalid'); await f.answer('21999999999');
+  assert.equal(f.radios().find(node => node.checked).value, 'Mercado Livre, com ou sem Shopee');
+  assert.equal(f.requests.length, 0);
+  await f.answer('Ainda não vendo');
+  assert.equal(f.requests[0].payload.email, 'updated@example.invalid');
+  assert.equal(f.requests[0].payload.phone, '21999999999');
+  assert.equal(f.requests[0].payload.name, 'Seller QA');
+});
+
+test('a skipped contact is still revalidated before the final POST', async () => {
+  const f = fixture({ draft: { email: 'bad\u0000@example.invalid', phone: '11999999999', campaign: {} } });
+  await f.answer('Seller QA'); await f.answer('Ainda não vendo');
+  assert.equal(f.requests.length, 0);
+  assert.equal(f.nodes['#form-input'].name, 'email');
+  assert.match(f.nodes['#form-error'].textContent, /Confira seu e-mail/);
+});
+
+test('failed handoff persistence preserves the draft and UUID until a successful retry', async () => {
+  const f = fixture({ failFirst: true, draft: { email: 'handoff@example.invalid', phone: '11999999999', campaign: {} } });
+  await f.answer('Seller QA'); await f.answer('Ainda não vendo');
+  assert.equal(f.requests.length, 1); assert.equal(f.draftCalls.length, 0);
+  await f.submit();
+  assert.equal(f.requests[0].payload.event_id, f.requests[1].payload.event_id);
+  assert.equal(f.draftCalls.filter(call => call.type === 'clear').length, 1);
 });

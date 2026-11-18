@@ -55,13 +55,36 @@ test('standard event uses same UUID, server time and private header token, strip
   assert.equal(result.headers['Cache-Control'], 'no-store');
   assert.equal(result.headers['Access-Control-Allow-Origin'], ORIGIN);
 });
-for (const eventName of ['ViewContent', 'WhatsAppGroupClick']) test(eventName + ' is accepted without personal data', async () => {
+for (const eventName of ['ViewContent', 'WhatsAppGroupClick', 'FormOpen']) test(eventName + ' is accepted without personal data', async () => {
   const mock = mockFetch([{ events_received: 1 }]);
   const api = createTrackingApi({ env: ENV, fetcher: mock.fetcher });
   assert.equal((await invoke(api.events, event({ event_name: eventName }))).status, 200);
   assert.equal(mock.calls[0].body.data[0].event_name, eventName);
   assert.equal(mock.calls[0].body.data[0].user_data.em, undefined);
 });
+test('FormOpen on the quick signup page preserves the browser UUID and strips query data', async () => {
+  const mock = mockFetch([{ events_received: 1 }]);
+  const api = createTrackingApi({ env: ENV, fetcher: mock.fetcher, now: () => NOW });
+  const result = await invoke(api.events, event({
+    event_name: 'FormOpen', event_source_url: ORIGIN + '/inscricao.html?email=not-forwarded@example.test#private',
+    consent: { analytics: false, marketing: true }
+  }));
+  assert.equal(result.status, 200); assert.equal(result.body.event_id, ID);
+  assert.equal(mock.calls.length, 1);
+  const sent = mock.calls[0].body.data[0];
+  assert.equal(sent.event_name, 'FormOpen'); assert.equal(sent.event_id, ID);
+  assert.equal(sent.action_source, 'website'); assert.equal(sent.event_source_url, ORIGIN + '/inscricao.html');
+  assert.equal(sent.user_data.em, undefined); assert.equal(sent.user_data.ph, undefined);
+  assert.equal(JSON.stringify(sent).includes('not-forwarded'), false);
+});
+
+test('FormOpen respects marketing refusal and cannot accept contact properties', async () => {
+  const api = createTrackingApi({ env: {}, fetcher: () => assert.fail('No provider request') });
+  const refused = await invoke(api.events, event({ event_name: 'FormOpen', consent: { analytics: true, marketing: false } }));
+  assert.equal(refused.status, 202); assert.equal(refused.body.sent, false);
+  assert.equal((await invoke(api.events, event({ event_name: 'FormOpen', email: 'seller@example.test' }))).status, 400);
+});
+
 test('public events reject Lead and unknown properties', async () => {
   const api = createTrackingApi({ env: ENV, fetcher: () => assert.fail('No provider request') });
   assert.equal((await invoke(api.events, event({ event_name: 'Lead' }))).status, 400);
@@ -91,6 +114,8 @@ test('arbitrary source domains, private paths and malformed cookie identifiers a
   const api = createTrackingApi({ env: ENV, fetcher: () => assert.fail('No provider request') });
   assert.equal((await invoke(api.events, event({ event_source_url: 'https://untrusted.example.test/' }))).status, 400);
   assert.equal((await invoke(api.events, event({ event_source_url: ORIGIN + '/private' }))).status, 400);
+  assert.equal((await invoke(api.events, event({ event_name: 'FormOpen', event_source_url: ORIGIN + '/inscricao.html/private' }))).status, 400);
+  assert.equal((await invoke(api.events, event({ event_name: 'FormOpen', event_source_url: ORIGIN + '/inscricao.js' }))).status, 400);
   assert.equal((await invoke(api.events, event({ fbp: 'email@example.test' }))).status, 400);
 });
 test('forwarded IP is trusted only in the Vercel runtime', async () => {
