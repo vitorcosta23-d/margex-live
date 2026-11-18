@@ -1,3 +1,23 @@
+# Release2.11 — inscrição rápida e FormOpen publicados
+
+**PUBLICADO E VERIFICADO:** https://margex-live.vercel.app/inscricao.html . Sourcecommit `256a26464fb5d3a378e3f01551a9920f3852dd58`, remoto confirmado em dev/feat/margex-live. Deployment `dpl_EwiVXGqHoB5mJ5p6N16oLQ9dT1cr` READYproduction; URL imutável https://margex-live-7o9jbbq6b-vitor-costa.vercel.app . Alias existente preservado. Upload47fontes, build40públicos e funções aprovados.
+
+Página rápida com informações aprovadas da live, e-mail/WhatsApp antes da qualificação. Handoff em sessionStorage temporário comTTL30min, sem contatos em URL/dataLayer/eventos, revalidação no destino e limpeza somente após cadastro salvo. Nenhum Lead na etapa inicial. Formulário sequencial preservado; qualificação aplicável e payload2.7 permanecem iguais.
+
+MetaFormOpen personalizado é enviado somente após ação real e consentimento marketing, uma vez por carregamento/canal, com o mesmo UUID em Pixel e CAPI. GA4form_open independente; Lead continua após ack salvo. O QA de SDKs e pares de IDs foi interceptado e não confirma recebimento no painelMeta. Contador, datas, Clarity, IDs, backend de cadastro, regras da planilha e valores privados não foram alterados.
+
+Gate80/80Node, sintaxe/build40/diff e scan de padrões de segredo aprovados. Root: sete cenários locais, BFCache/edição/TTL, IDs Pixel/API iguais, sentinelas de privacidade fora de requests/dataLayer e QA visual320/390/1440. Em390x844 CTA termina em843,4px. QA online390/1440 confirma informações/data/Pixel, fluxo rápido→qualificação, respostas preservadas, ausência de overflow/erroJS e nenhum POSTleads real.
+
+Verifier focado público PASS:13arquivos HTTP200 com hashes source/dist,18privados404,quatroMP4Range1KB206,API GET405/AllowPOST,CSP/nosniff. Dez mídias/WebPs foram preservados por hash local no preflight; vídeos não foram baixados integralmente novamente. Único POST de runtime: FormOpen com consentimento negado e sem contatos recebeu202/oktrue/sentfalse/CONSENT_NOT_GRANTED; nenhuma chamadaGraph/Lead/Sheet. Relatório privado: qa-output/release-verification-2.11-2026-11-17.json.
+
+Atribuição: FormOpen rápido=sales_page+/inscricao.html; Lead final=direct_form+/formulario.html. UTMs originais preservadas. Não há novo enum/campoAppsScript ou UTM inventada. Sem UTM específica da campanha, a planilha não distingue exclusivamente esse percurso. FormOpen em páginas diferentes são ações diferentes; Pixel/CAPI da mesma ação compartilham UUID.
+
+Comparativo sintético local root390px/frio/cookies recusados/reducedmotion:893899bytes/20recursos na LP e171366bytes/9recursos na rápida (aproximadamente81%menos bytes), zeroMP4automático em ambas. Não interpretar como81%menos tempo de carregamento ou benchmark real de campo.
+
+Documentação final é sincronizada em commit separado sem redeploy funcional.
+
+---
+
 # Release2.10 — publicado e verificado
 
 **PUBLICADO E VERIFICADO:** https://margex-live.vercel.app . Sourcecommit `839d8030b12db890b92f16fab03a1e8f2ae7d599`,remotoconfirmado;deployment `dpl_JCMjZdthhi57sNKo2DGuYPXTnKp1` READYproduction,URLimutável https://margex-live-gr57ir50b-vitor-costa.vercel.app . Relatórioqa-output/release-verification-2.10-2026-11-17.json.
